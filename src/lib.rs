@@ -246,5 +246,7 @@ pub use timestamp::TimestampError;
 pub use timestamp::*;
 >>>>>>> d64de5b (Reorganized types and added duration helpers)
 
+pub mod cel;
+
 mod field_mask_impls;
 >>>>>>> 9231a96 (Corrected types import)
