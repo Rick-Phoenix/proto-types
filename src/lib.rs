@@ -58,7 +58,7 @@ const NANOS_MAX: i32 = NANOS_PER_SECOND - 1;
 const PACKAGE_PREFIX: &str = "google.protobuf";
 
 pub mod duration;
-pub use duration::DurationError;
+pub use duration::*;
 
 <<<<<<< HEAD
 impl ToTokens for ProtoType {
