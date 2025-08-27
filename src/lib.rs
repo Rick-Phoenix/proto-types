@@ -38,6 +38,7 @@ pub use field_type::FieldType;
 
 mod empty;
 
+mod constants;
 mod conversions;
 mod datetime;
 mod type_url;
@@ -50,6 +51,7 @@ use prost::{
   DecodeError, EncodeError, Message, Name,
 };
 pub(crate) use type_url::{type_url_for, TypeUrl};
+<<<<<<< HEAD
 
 <<<<<<< HEAD
 impl ToTokens for FieldPathElement {
@@ -286,3 +288,12 @@ pub mod cel;
 mod field_mask_impls;
 =======
 >>>>>>> 3bb326c (File paths reorganization)
+||||||| parent of 0982079 (Moved constants to top of the crate)
+
+const NANOS_PER_SECOND: i32 = 1_000_000_000;
+
+const NANOS_MAX: i32 = NANOS_PER_SECOND - 1;
+
+const PACKAGE_PREFIX: &str = "google.protobuf";
+=======
+>>>>>>> 0982079 (Moved constants to top of the crate)
