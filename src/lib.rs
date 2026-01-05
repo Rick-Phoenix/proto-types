@@ -15,6 +15,8 @@ pub mod cel;
 mod rpc;
 pub use rpc::*;
 
+pub mod num_wrappers;
+
 mod common;
 pub use common::*;
 pub use protobuf::*;
@@ -52,9 +54,10 @@ use core::{convert::TryFrom, fmt, time};
 use std::str::FromStr;
 
 use prost::{
-  alloc::{format, string::String, vec::Vec},
   DecodeError, EncodeError, Message, Name,
+  alloc::{format, string::String, vec::Vec},
 };
+<<<<<<< HEAD
 pub(crate) use type_url::{type_url_for, TypeUrl};
 <<<<<<< HEAD
 <<<<<<< HEAD
@@ -362,3 +365,8 @@ pub struct Status {
 }
 =======
 >>>>>>> 4f57331 (refactor: make google.rpc.Code available by default)
+||||||| parent of c3ae3b1 (feat(types): added int wrappers)
+pub(crate) use type_url::{type_url_for, TypeUrl};
+=======
+pub(crate) use type_url::{TypeUrl, type_url_for};
+>>>>>>> c3ae3b1 (feat(types): added int wrappers)
