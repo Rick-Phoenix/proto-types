@@ -1,9 +1,23 @@
 use crate::*;
 
+use core::ops::*;
 use num_traits::{Num, One, Zero};
 
 pub trait ProtoIntWrapper:
-  Num + Clone + Copy + Display + Debug + Eq + Ord + Hash + Default
+  Num
+  + Clone
+  + Copy
+  + Display
+  + Debug
+  + Eq
+  + Ord
+  + Hash
+  + Default
+  + Add<Self::Target>
+  + Sub<Self::Target>
+  + Mul<Self::Target>
+  + Div<Self::Target>
+  + Rem<Self::Target>
 {
   type Target: Num + Clone + Copy + Display + Debug + Eq + Ord + Hash + Default;
 }
@@ -25,12 +39,14 @@ macro_rules! impl_wrapper {
 
     impl core::ops::Deref for $name {
       type Target = $target;
+      #[inline]
       fn deref(&self) -> &Self::Target {
         &self.0
       }
     }
 
     impl core::cmp::PartialEq<$target> for $name {
+      #[inline]
       fn eq(&self, other: &$target) -> bool {
         self.0 == *other
       }
@@ -39,22 +55,35 @@ macro_rules! impl_wrapper {
     impl core::ops::Add for $name {
       type Output = Self;
 
+      #[inline]
       fn add(self, rhs: Self) -> Self::Output {
         Self(self.0 + rhs.0)
       }
     }
 
+    impl core::ops::Add<$target> for $name {
+      type Output = $target;
+
+      #[inline]
+      fn add(self, rhs: $target) -> Self::Output {
+        self.0 + rhs
+      }
+    }
+
     impl Zero for $name {
+      #[inline]
       fn zero() -> Self {
         Self(0)
       }
 
+      #[inline]
       fn is_zero(&self) -> bool {
         self.0 == 0
       }
     }
 
     impl One for $name {
+      #[inline]
       fn one() -> Self {
         Self(1)
       }
@@ -63,36 +92,77 @@ macro_rules! impl_wrapper {
     impl core::ops::Mul for $name {
       type Output = Self;
 
+      #[inline]
       fn mul(self, rhs: Self) -> Self::Output {
         Self(self.0 * rhs.0)
+      }
+    }
+
+    impl core::ops::Mul<$target> for $name {
+      type Output = $target;
+
+      #[inline]
+      fn mul(self, rhs: $target) -> Self::Output {
+        self.0 * rhs
       }
     }
 
     impl core::ops::Div for $name {
       type Output = Self;
 
+      #[inline]
       fn div(self, rhs: Self) -> Self::Output {
         Self(self.0 / rhs.0)
+      }
+    }
+
+    impl core::ops::Div<$target> for $name {
+      type Output = $target;
+
+      #[inline]
+      fn div(self, rhs: $target) -> Self::Output {
+        self.0 / rhs
       }
     }
 
     impl core::ops::Rem for $name {
       type Output = Self;
 
+      #[inline]
       fn rem(self, rhs: Self) -> Self::Output {
         Self(self.0 % rhs.0)
+      }
+    }
+
+    impl core::ops::Rem<$target> for $name {
+      type Output = $target;
+
+      #[inline]
+      fn rem(self, rhs: $target) -> Self::Output {
+        self.0 % rhs
       }
     }
 
     impl core::ops::Sub for $name {
       type Output = Self;
 
+      #[inline]
       fn sub(self, rhs: Self) -> Self::Output {
         Self(self.0 - rhs.0)
       }
     }
 
+    impl core::ops::Sub<$target> for $name {
+      type Output = $target;
+
+      #[inline]
+      fn sub(self, rhs: $target) -> Self::Output {
+        self.0 - rhs
+      }
+    }
+
     impl core::ops::DerefMut for $name {
+      #[inline]
       fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
       }
@@ -101,30 +171,35 @@ macro_rules! impl_wrapper {
     impl Num for $name {
       type FromStrRadixErr = <$target as num_traits::Num>::FromStrRadixErr;
 
+      #[inline]
       fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr> {
         Ok(Self(<$target>::from_str_radix(str, radix)?))
       }
     }
 
     impl From<$name> for $target {
+      #[inline]
       fn from(value: $name) -> $target {
         value.0
       }
     }
 
     impl AsRef<$target> for $name {
+      #[inline]
       fn as_ref(&self) -> &$target {
         self
       }
     }
 
     impl core::borrow::Borrow<$target> for $name {
+      #[inline]
       fn borrow(&self) -> &$target {
         self
       }
     }
 
     impl core::borrow::BorrowMut<$target> for $name {
+      #[inline]
       fn borrow_mut(&mut self) -> &mut $target {
         self
       }
