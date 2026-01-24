@@ -107,12 +107,12 @@ impl fmt::Display for DateTime {
 
       // Mathematically strip trailing zeros
       // This reduces precision 'n' and display 'width' in lock-step
-      while n % 10 == 0 {
+      while n.is_multiple_of(10) {
         n /= 10;
         width -= 1;
       }
 
-      write!(f, ".{:0width$}Z", n, width = width)
+      write!(f, ".{n:0width$}Z")
     } else {
       write!(f, "Z")
     }

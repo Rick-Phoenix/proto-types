@@ -35,7 +35,7 @@ pub struct Rule {
 }
 /// MessageRules represents validation rules that are applied to the entire message.
 /// It includes disabling options and a list of Rule messages representing Common Expression Language (CEL) validation rules.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct MessageRules {
   /// `cel_expression` is a repeated field CEL expressions. Each expression specifies a validation
   /// rule to be applied to this message. These rules are written in Common Expression Language (CEL) syntax.
@@ -316,7 +316,7 @@ pub mod field_rules {
 }
 /// PredefinedRules are custom rules that can be re-used with
 /// multiple fields.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct PredefinedRules {
   /// `cel` is a repeated field used to represent a textual expression
   /// in the Common Expression Language (CEL) syntax. For more information,
@@ -2898,7 +2898,7 @@ pub struct AnyRules {
   pub not_in: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
 }
 /// DurationRules describe the rules applied exclusively to the `google.protobuf.Duration` well-known type.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct DurationRules {
   /// `const` dictates that the field must match the specified value of the `google.protobuf.Duration` type exactly.
   /// If the field's value deviates from the specified value, an error message
@@ -3030,7 +3030,7 @@ pub mod duration_rules {
   }
 }
 /// FieldMaskRules describe rules applied exclusively to the `google.protobuf.FieldMask` well-known type.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct FieldMaskRules {
   /// `const` dictates that the field must match the specified value of the `google.protobuf.FieldMask` type exactly.
   /// If the field's value deviates from the specified value, an error message
@@ -3094,7 +3094,7 @@ pub struct FieldMaskRules {
   pub example: ::prost::alloc::vec::Vec<crate::protobuf::FieldMask>,
 }
 /// TimestampRules describe the rules applied exclusively to the `google.protobuf.Timestamp` well-known type.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct TimestampRules {
   /// `const` dictates that this field, of the `google.protobuf.Timestamp` type, must exactly match the specified value. If the field value doesn't correspond to the specified timestamp, an error message will be generated.
   ///
@@ -3227,7 +3227,7 @@ pub mod timestamp_rules {
 /// `Violations` is a collection of `Violation` messages. This message type is returned by
 /// Protovalidate when a proto message fails to meet the requirements set by the `Rule` validation rules.
 /// Each individual violation is represented by a `Violation` message.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct Violations {
   /// `violations` is a repeated field that contains all the `Violation` messages corresponding to the violations detected.
   #[prost(message, repeated, tag = "1")]
@@ -3276,7 +3276,7 @@ pub struct Violations {
 ///    }
 /// }
 /// ```
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct Violation {
   /// `field` is a machine-readable path to the field that failed validation.
   /// This could be a nested field, in which case the path will include all the parent fields leading to the actual field that caused the violation.
@@ -3345,7 +3345,7 @@ pub struct Violation {
 ///
 /// This message provides enough information to render a dotted field path even without protobuf descriptors.
 /// It also provides enough information to resolve a nested field through unknown wire data.
-#[derive(Clone, PartialEq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, ::prost::Message)]
 pub struct FieldPath {
   /// `elements` contains each element of the path, starting from the root and recursing downward.
   #[prost(message, repeated, tag = "1")]
@@ -3518,7 +3518,8 @@ impl Ignore {
   ///
   /// The values are not transformed in any way and thus are considered stable
   /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-  pub fn as_str_name(&self) -> &'static str {
+  #[must_use]
+  pub const fn as_str_name(&self) -> &'static str {
     match self {
       Self::Unspecified => "IGNORE_UNSPECIFIED",
       Self::IfZeroValue => "IGNORE_IF_ZERO_VALUE",
@@ -3526,6 +3527,7 @@ impl Ignore {
     }
   }
   /// Creates an enum from field names used in the ProtoBuf definition.
+  #[must_use]
   pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
     match value {
       "IGNORE_UNSPECIFIED" => Some(Self::Unspecified),
@@ -3550,7 +3552,8 @@ impl KnownRegex {
   ///
   /// The values are not transformed in any way and thus are considered stable
   /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-  pub fn as_str_name(&self) -> &'static str {
+  #[must_use]
+  pub const fn as_str_name(&self) -> &'static str {
     match self {
       Self::Unspecified => "KNOWN_REGEX_UNSPECIFIED",
       Self::HttpHeaderName => "KNOWN_REGEX_HTTP_HEADER_NAME",
@@ -3558,6 +3561,7 @@ impl KnownRegex {
     }
   }
   /// Creates an enum from field names used in the ProtoBuf definition.
+  #[must_use]
   pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
     match value {
       "KNOWN_REGEX_UNSPECIFIED" => Some(Self::Unspecified),

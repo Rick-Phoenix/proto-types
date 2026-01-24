@@ -1,4 +1,4 @@
-#![allow(clippy::len_without_is_empty)]
+#![allow(clippy::len_without_is_empty, clippy::too_long_first_doc_paragraph)]
 include!("./buf.validate.rs");
 
 use crate::protovalidate::field_path_element::Subscript;
