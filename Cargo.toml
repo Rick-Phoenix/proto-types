@@ -15,20 +15,17 @@ edition = "2024"
 [workspace.dependencies]
 num-traits = "0.2"
 cel = { version = "0.12", features = ["bytes"] }
-prost = { version = "0.14.3", default-features = false }
+prost = { version = "0.14", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-syn = { version = "2", features = ["full", "extra-traits"] }
-quote = "1"
-proc-macro2 = "1"
 bytes = { version = "1" }
-chrono = { version = "0.4.42" }
-base64 = "0.22.1"
+chrono = { version = "0.4" }
+base64 = "0.22"
 thiserror = "2"
 maplit = "1"
 paste = "1"
 document-features = "0.2"
-rust_decimal = "1.37"
+rust_decimal = "1"
 
 [workspace.lints.clippy]
 # Until rustfmt supports it and there is a quick fix

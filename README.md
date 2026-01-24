@@ -33,7 +33,6 @@ All of the structs that have fallible methods also come with their own custom er
     - Add, Sub (with Duration)
     - Custom formatting with chrono syntax (requires the `chrono` feature)
     - Conversions to/from [`std::time::SystemTime`] and [`chrono::DateTime`]
-    - ToTokens (optional)
 - [`FieldMask`]
     - Display
 - [`Empty`]
