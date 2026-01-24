@@ -31,9 +31,23 @@ pub enum FieldType {
 impl FieldType {
   #[must_use]
   pub const fn is_scalar(&self) -> bool {
-    !matches!(
+    matches!(
       self,
-      Self::Message | Self::Duration | Self::Timestamp | Self::Any
+      Self::Double
+        | Self::Float
+        | Self::Int64
+        | Self::Uint64
+        | Self::Int32
+        | Self::Fixed32
+        | Self::Fixed64
+        | Self::Bool
+        | Self::String
+        | Self::Bytes
+        | Self::Uint32
+        | Self::Sfixed32
+        | Self::Sfixed64
+        | Self::Sint32
+        | Self::Sint64
     )
   }
 
