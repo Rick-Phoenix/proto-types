@@ -9,6 +9,7 @@ use crate::{String, ToString, common::Date};
 
 /// Errors that can occur during the creation, conversion or validation of a [`Date`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum DateError {
   #[error("{0}")]
   InvalidYear(String),

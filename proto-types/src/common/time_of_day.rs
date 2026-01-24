@@ -24,6 +24,7 @@ impl Display for TimeOfDay {
 
 /// Errors that can occur during the creation, conversion or validation of a [`TimeOfDay`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum TimeOfDayError {
   #[error("Hours out of valid range (0-23)")]
   InvalidHours,

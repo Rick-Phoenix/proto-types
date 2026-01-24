@@ -5,6 +5,7 @@ use crate::{String, ToString};
 
 /// Errors that can occur during the creation, conversion or validation of a [`Color`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum ColorError {
   #[error("The value for red has to be between 0 and 1.")]
   InvalidRed,

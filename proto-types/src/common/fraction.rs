@@ -12,6 +12,7 @@ impl Display for Fraction {
 
 /// Errors that can occur during the creation, conversion or validation of a [`Fraction`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum FractionError {
   #[error("Denominator cannot be zero")]
   ZeroDenominator,

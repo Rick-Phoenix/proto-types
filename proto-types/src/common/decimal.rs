@@ -21,6 +21,7 @@ use thiserror::Error;
 
 /// Errors that can occur during the creation, conversion or validation of a [`Decimal`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum DecimalError {
   #[error("Invalid decimal format: {0}")]
   InvalidFormat(String),

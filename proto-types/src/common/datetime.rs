@@ -57,6 +57,7 @@ impl Display for DateTime {
 
 /// Errors that can occur during the creation, conversion or validation of a [`DateTime`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum DateTimeError {
   #[error("The year must be a value from 0 (to indicate a DateTime with no specific year) to 9999")]
   InvalidYear,
