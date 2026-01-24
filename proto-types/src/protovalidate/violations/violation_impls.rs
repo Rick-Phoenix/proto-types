@@ -179,7 +179,6 @@ impl Violations {
   ///      ..Default::default()
   ///    }],
   ///  };
-
   ///  assert!(violations.violation_by_field_path("person.name").is_some());
   /// ```
   #[must_use]
