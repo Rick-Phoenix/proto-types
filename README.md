@@ -124,4 +124,5 @@ Enabled with the `rpc` flag:
 
 # 📜 License
 
-Licensed under MPL-2.0.
+This repository is licensed under the MPL-2.0 license, unless otherwise indicated.
+The file `CREDITS.md` contains the details of the external code (and relevant licenses) used in this project.
