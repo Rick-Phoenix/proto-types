@@ -24,6 +24,7 @@ impl<'b> Sub<&'b Duration> for &Timestamp {
 
 impl Sub<Duration> for Timestamp {
   type Output = Self;
+  #[inline]
   fn sub(self, rhs: Duration) -> Self::Output {
     <&Self as Sub<&Duration>>::sub(&self, &rhs)
   }
@@ -31,6 +32,7 @@ impl Sub<Duration> for Timestamp {
 
 impl<'b> Sub<&'b Duration> for Timestamp {
   type Output = Self;
+  #[inline]
   fn sub(self, rhs: &'b Duration) -> Self::Output {
     <&Self as Sub<&Duration>>::sub(&self, rhs)
   }
@@ -38,6 +40,7 @@ impl<'b> Sub<&'b Duration> for Timestamp {
 
 impl<'a> Sub<Duration> for &'a Timestamp {
   type Output = Timestamp;
+  #[inline]
   fn sub(self, rhs: Duration) -> Self::Output {
     <&'a Timestamp as Sub<&Duration>>::sub(self, &rhs)
   }
@@ -62,6 +65,7 @@ impl<'b> Add<&'b Duration> for &Timestamp {
 
 impl<'b> Add<&'b Duration> for Timestamp {
   type Output = Self;
+  #[inline]
   fn add(self, rhs: &'b Duration) -> Self::Output {
     <&Self as Add<&Duration>>::add(&self, rhs)
   }
@@ -69,6 +73,7 @@ impl<'b> Add<&'b Duration> for Timestamp {
 
 impl Add<Duration> for &Timestamp {
   type Output = Timestamp;
+  #[inline]
   fn add(self, rhs: Duration) -> Self::Output {
     <Self as Add<&Duration>>::add(self, &rhs)
   }
@@ -77,18 +82,21 @@ impl Add<Duration> for &Timestamp {
 impl Add<Duration> for Timestamp {
   type Output = Self;
 
+  #[inline]
   fn add(self, rhs: Duration) -> Self::Output {
     &self + &rhs
   }
 }
 
 impl PartialOrd for Timestamp {
+  #[inline]
   fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
     Some(self.cmp(other))
   }
 }
 
 impl Ord for Timestamp {
+  #[inline]
   fn cmp(&self, other: &Self) -> Ordering {
     (self.seconds, self.nanos).cmp(&(other.seconds, other.nanos))
   }

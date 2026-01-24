@@ -1,21 +1,65 @@
+use core::ops::{Deref, DerefMut};
+
 use crate::*;
+
+impl Deref for FieldMask {
+  type Target = [String];
+
+  #[inline]
+  fn deref(&self) -> &Self::Target {
+    &self.paths
+  }
+}
+
+impl DerefMut for FieldMask {
+  #[inline]
+  fn deref_mut(&mut self) -> &mut Self::Target {
+    &mut self.paths
+  }
+}
+
+impl IntoIterator for FieldMask {
+  type Item = String;
+  type IntoIter = alloc::vec::IntoIter<String>;
+
+  #[inline]
+  fn into_iter(self) -> Self::IntoIter {
+    self.paths.into_iter()
+  }
+}
+
+impl<'a> IntoIterator for &'a FieldMask {
+  type Item = &'a String;
+  type IntoIter = core::slice::Iter<'a, String>;
+
+  #[inline]
+  fn into_iter(self) -> Self::IntoIter {
+    self.paths.iter()
+  }
+}
+
+impl FromIterator<String> for FieldMask {
+  fn from_iter<T: IntoIterator<Item = String>>(iter: T) -> Self {
+    Self {
+      paths: iter.into_iter().collect(),
+    }
+  }
+}
 
 impl FieldMask {
   #[must_use]
+  #[inline]
   pub const fn new(paths: Vec<String>) -> Self {
     Self { paths }
   }
 
   #[must_use]
-  pub const fn is_empty(&self) -> bool {
-    self.paths.is_empty()
-  }
-
-  #[must_use]
-  pub fn contains(&self, path: &str) -> bool {
+  #[inline]
+  pub fn contains_path(&self, path: &str) -> bool {
     self.paths.iter().any(|p| p == path)
   }
 
+  #[deprecated = "With the DerefMut impl, you can use .push() directly"]
   pub fn add_path(&mut self, path: &str) {
     self.paths.push(path.to_string());
   }
