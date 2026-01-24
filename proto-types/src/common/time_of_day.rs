@@ -13,7 +13,12 @@ impl Display for TimeOfDay {
       f,
       "{:02}:{:02}:{:02}",
       self.hours, self.minutes, self.seconds
-    )
+    )?;
+
+    if self.nanos > 0 {
+      write!(f, ".{:09}", self.nanos)?;
+    }
+    Ok(())
   }
 }
 
