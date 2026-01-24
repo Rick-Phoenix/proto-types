@@ -97,7 +97,6 @@ impl PartialOrd for TimeOffset {
 }
 
 impl PartialOrd for DateTime {
-  #[inline]
   fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
     if !(self.is_valid() && other.is_valid()) {
       return None;
@@ -141,7 +140,8 @@ fn datetime_is_valid(
   if !(1..=12).contains(&month) {
     return Err(DateTimeError::InvalidMonth);
   }
-  if !(1..=31).contains(&day) {
+  let max_days = crate::date::days_in_month(month, year);
+  if !(1..=max_days).contains(&day) {
     return Err(DateTimeError::InvalidDay);
   }
 
@@ -166,7 +166,6 @@ fn datetime_is_valid(
 }
 
 impl DateTime {
-  #[inline]
   /// Checks if this [`DateTime`] instance represents a valid date and time, and returns the related error if it does not.
   pub fn validate(&self) -> Result<(), DateTimeError> {
     datetime_is_valid(
@@ -238,7 +237,7 @@ pub const UTC_OFFSET: Duration = Duration {
 };
 
 #[cfg(feature = "chrono")]
-mod chrono {
+mod chrono_impls {
   use chrono::Utc;
 
   use super::{DateTime, DateTimeError};
@@ -247,7 +246,6 @@ mod chrono {
   impl DateTime {
     /// Returns the current [`DateTime`] with Utc offset.
     #[must_use]
-    #[inline]
     pub fn now_utc() -> Self {
       Utc::now().into()
     }
@@ -285,7 +283,7 @@ mod chrono {
     fn try_from(value: DateTime) -> Result<Self, Self::Error> {
       use crate::date_time::TimeOffset;
 
-      let offset = match &value.time_offset {
+      match &value.time_offset {
         Some(TimeOffset::UtcOffset(proto_duration)) => {
           use crate::constants::NANOS_PER_SECOND;
 
@@ -312,29 +310,63 @@ mod chrono {
             )
           })?;
 
-          chrono::FixedOffset::east_opt(total_seconds_i32).ok_or_else(|| {
+          let offset = chrono::FixedOffset::east_opt(total_seconds_i32).ok_or_else(|| {
             DateTimeError::ConversionError(
-            "Failed to convert proto::Duration to chrono::FixedOffset due to invalid offset values"
-              .to_string(),
-          )
-          })
+              "Failed to convert proto::Duration to chrono::FixedOffset due to invalid offset values"
+                .to_string(),
+            )
+          })?;
+
+          let naive_dt: chrono::NaiveDateTime = value.try_into()?;
+
+          naive_dt
+            .and_local_timezone(offset)
+            .single() // Take the unique result if not ambiguous
+            .ok_or(DateTimeError::ConversionError(
+              "Ambiguous or invalid local time to FixedOffset conversion".to_string(),
+            ))
         }
-        Some(TimeOffset::TimeZone(_)) => Err(DateTimeError::ConversionError(
-          "Cannot convert DateTime with named TimeZone to FixedOffset".to_string(),
-        )),
+        Some(TimeOffset::TimeZone(tz_info)) => {
+          #[cfg(feature = "chrono-tz")]
+          {
+            use chrono::{Offset, TimeZone};
+            use core::str::FromStr;
+
+            // 1. Parse the string (e.g., "Europe/Paris")
+            let tz = chrono_tz::Tz::from_str(&tz_info.id).map_err(|_| {
+              DateTimeError::ConversionError(format!("Unknown TimeZone ID: {}", tz_info.id))
+            })?;
+
+            let naive_dt: chrono::NaiveDateTime = value.try_into()?;
+
+            // 2. Resolve the Timezone for this specific wall clock time.
+            // This handles DST. E.g., 12:00 in Summer might be +02:00, in Winter +01:00.
+            let dt_with_tz =
+              tz.from_local_datetime(&naive_dt)
+                .single()
+                .ok_or(DateTimeError::ConversionError(
+                  "Ambiguous or invalid time for this timezone (DST gap/overlap)".into(),
+                ))?;
+
+            // 3. Convert the dynamic Tz offset into a static FixedOffset
+            // .fix() extracts the computed offset (e.g., +02:00)
+            Ok(dt_with_tz.with_timezone(&dt_with_tz.offset().fix()))
+          }
+
+          #[cfg(not(feature = "chrono-tz"))]
+          {
+            Err(DateTimeError::ConversionError(
+              "Enable the 'chrono-tz' feature to convert named TimeZones to FixedOffset"
+                .to_string(),
+            ))
+          }
+        }
         None => Err(DateTimeError::ConversionError(
-          "Cannot convert local DateTime to FixedOffset without explicit offset".to_string(),
+          "Cannot convert local DateTime (no offset) to FixedOffset. \
+           If you intended UTC, use .with_utc_offset() first."
+            .to_string(),
         )),
-      }?;
-
-      let naive_dt: chrono::NaiveDateTime = value.try_into()?;
-
-      naive_dt
-        .and_local_timezone(offset)
-        .single() // Take the unique result if not ambiguous
-        .ok_or(DateTimeError::ConversionError(
-          "Ambiguous or invalid local time to FixedOffset conversion".to_string(),
-        ))
+      }
     }
   }
 
@@ -369,11 +401,6 @@ mod chrono {
         return Err(DateTimeError::ConversionError(
           "Cannot convert DateTime with year 0 to NaiveDateTime".to_string(),
         ));
-      }
-      if dt.time_offset.is_some() {
-        return Err(DateTimeError::ConversionError(
-               "Cannot convert DateTime with explicit time offset to NaiveDateTime without losing information".to_string()
-           ));
       }
 
       dt.validate()?;
@@ -516,6 +543,164 @@ mod chrono {
         .ok_or(DateTimeError::ConversionError(
           "Ambiguous or invalid local time to named TimeZone (Tz) conversion".to_string(),
         ))
+    }
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use crate::Duration;
+  use alloc::string::ToString;
+
+  fn dt(y: i32, m: i32, d: i32, h: i32, min: i32, s: i32, n: i32) -> DateTime {
+    DateTime {
+      year: y,
+      month: m,
+      day: d,
+      hours: h,
+      minutes: min,
+      seconds: s,
+      nanos: n,
+      time_offset: None,
+    }
+  }
+
+  #[test]
+  fn test_display_formatting() {
+    // 1. Standard Local
+    let d = dt(2024, 1, 15, 12, 30, 45, 0);
+    assert_eq!(d.to_string(), "2024-01-15T12:30:45");
+
+    // 2. Year 0 (No Year)
+    let no_year = dt(0, 12, 25, 8, 0, 0, 0);
+    assert_eq!(no_year.to_string(), "12-25T08:00:00");
+
+    // 3. UTC Offset (Positive)
+    let mut utc_plus = d.clone();
+    utc_plus.time_offset = Some(TimeOffset::UtcOffset(Duration {
+      seconds: 3600,
+      nanos: 0,
+    })); // +1h
+    assert_eq!(utc_plus.to_string(), "2024-01-15T12:30:45+01:00");
+
+    // 4. UTC Offset (Negative)
+    let mut utc_minus = d.clone();
+    utc_minus.time_offset = Some(TimeOffset::UtcOffset(Duration {
+      seconds: -5400,
+      nanos: 0,
+    })); // -1h 30m
+    assert_eq!(utc_minus.to_string(), "2024-01-15T12:30:45-01:30");
+
+    // 5. UTC Z
+    let mut utc_z = d.clone();
+    utc_z.time_offset = Some(TimeOffset::UtcOffset(Duration {
+      seconds: 0,
+      nanos: 0,
+    }));
+    assert_eq!(utc_z.to_string(), "2024-01-15T12:30:45Z");
+
+    // 6. Named TimeZone
+    let mut named = d;
+    named = named.with_time_zone(TimeZone {
+      id: "America/New_York".into(),
+      version: String::new(),
+    });
+    assert_eq!(named.to_string(), "2024-01-15T12:30:45[America/New_York]");
+  }
+
+  #[test]
+  fn test_validation() {
+    // Range errors
+    assert!(dt(2024, 13, 1, 0, 0, 0, 0).validate().is_err()); // Month
+    assert!(dt(2024, 1, 1, 24, 0, 0, 0).validate().is_err()); // Hour
+
+    // Calendar logic
+    assert!(dt(2023, 2, 29, 12, 0, 0, 0).validate().is_err()); // Not leap year
+    assert!(dt(2024, 2, 29, 12, 0, 0, 0).validate().is_ok()); // Leap year
+
+    // Year 0 logic
+    assert!(dt(0, 1, 1, 0, 0, 0, 0).validate().is_ok());
+    assert!(dt(0, 0, 1, 0, 0, 0, 0).validate().is_err()); // Month 0
+  }
+
+  #[test]
+  fn test_partial_ord() {
+    let d1 = dt(2024, 1, 1, 10, 0, 0, 0);
+    let d2 = dt(2024, 1, 1, 11, 0, 0, 0);
+
+    assert!(d1 < d2);
+
+    // Year 0 vs Specific Year = Not Comparable
+    let d_year0 = dt(0, 1, 1, 10, 0, 0, 0);
+    assert_eq!(d1.partial_cmp(&d_year0), None);
+  }
+
+  #[cfg(feature = "chrono")]
+  mod chrono_tests {
+    use super::*;
+    use chrono::{Datelike, Timelike};
+
+    #[test]
+    fn test_to_naive_datetime() {
+      let d = dt(2024, 5, 20, 10, 30, 0, 500);
+      let naive: chrono::NaiveDateTime = d.try_into().unwrap();
+
+      assert_eq!(naive.year(), 2024);
+      assert_eq!(naive.hour(), 10);
+      assert_eq!(naive.nanosecond(), 500);
+    }
+
+    #[test]
+    fn test_to_fixed_offset() {
+      let mut d = dt(2024, 5, 20, 10, 0, 0, 0);
+      // Offset +1 hour
+      d = d.with_utc_offset(Duration {
+        seconds: 3600,
+        nanos: 0,
+      });
+
+      let fixed: chrono::DateTime<chrono::FixedOffset> = d.try_into().unwrap();
+
+      // The time should stay 10:00, but the offset is +1
+      assert_eq!(fixed.hour(), 10);
+      assert_eq!(fixed.offset().local_minus_utc(), 3600);
+    }
+
+    #[cfg(feature = "chrono-tz")]
+    #[test]
+    fn test_to_tz() {
+      use chrono_tz::US::Pacific;
+      let mut d = dt(2024, 1, 1, 12, 0, 0, 0);
+      d = d.with_time_zone(TimeZone {
+        id: "US/Pacific".into(),
+        version: String::new(),
+      });
+
+      let tz_dt: chrono::DateTime<chrono_tz::Tz> = d.try_into().unwrap();
+      assert_eq!(tz_dt.timezone(), Pacific);
+    }
+
+    #[cfg(feature = "chrono-tz")]
+    #[test]
+    fn test_named_tz_to_fixed_offset_dst() {
+      // New York Standard Time (Winter) -> UTC-5
+      let winter = dt(2024, 1, 1, 12, 0, 0, 0).with_time_zone(TimeZone {
+        id: "America/New_York".into(),
+        version: String::new(),
+      });
+
+      let fixed_winter: chrono::DateTime<chrono::FixedOffset> = winter.try_into().unwrap();
+      assert_eq!(fixed_winter.offset().local_minus_utc(), -5 * 3600);
+
+      // New York Daylight Time (Summer) -> UTC-4
+      let summer = dt(2024, 6, 1, 12, 0, 0, 0).with_time_zone(TimeZone {
+        id: "America/New_York".into(),
+        version: String::new(),
+      });
+
+      let fixed_summer: chrono::DateTime<chrono::FixedOffset> = summer.try_into().unwrap();
+      assert_eq!(fixed_summer.offset().local_minus_utc(), -4 * 3600);
     }
   }
 }
