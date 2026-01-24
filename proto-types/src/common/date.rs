@@ -44,47 +44,6 @@ pub enum DateKind {
   MonthAndDay,
 }
 
-fn validate_date(year: i32, month: i32, day: i32) -> Result<(), DateError> {
-  if !(0..=9999).contains(&year) {
-    return Err(DateError::InvalidYear(
-      "Invalid year value (must be within 0 (to indicate a date without a specific year) and 9999)"
-        .to_string(),
-    ));
-  }
-
-  if !(0..=12).contains(&month) {
-    return Err(DateError::InvalidMonth(
-      "Invalid month value (must be within 0 (if only the year is specified) and 12)".to_string(),
-    ));
-  }
-
-  if !(0..=31).contains(&day) {
-    return Err(DateError::InvalidDay(
-      "Invalid day value (must be within 0 (if only the year is specified) and 31)".to_string(),
-    ));
-  }
-
-  if year == 0 {
-    if month == 0 {
-      return Err(DateError::InvalidMonth(
-        "The month cannot be set to 0 if the year is also set to 0".to_string(),
-      ));
-    }
-
-    if day == 0 {
-      return Err(DateError::InvalidDay(
-        "The day cannot be set to 0 if the year is also set to 0".to_string(),
-      ));
-    }
-  } else if month == 0 {
-    return Err(DateError::InvalidMonth(
-      "The month cannot be set to 0 if the year is non-zero".to_string(),
-    ));
-  }
-
-  Ok(())
-}
-
 impl Date {
   /// Creates a new [`Date`] instance with validation.
   /// Allows `year: 0`, `month: 0`, `day: 0` as special cases described in the proto spec.
@@ -168,7 +127,7 @@ impl PartialOrd for Date {
 }
 
 #[cfg(feature = "chrono")]
-mod chrono {
+mod chrono_impls {
   use chrono::Utc;
 
   use super::validate_date;
@@ -226,6 +185,219 @@ mod chrono {
         month: naive_date.month().cast_signed(),
         day: naive_date.day().cast_signed(),
       }
+    }
+  }
+}
+
+const fn is_leap_year(year: i32) -> bool {
+  (year % 4 == 0) && ((year % 100 != 0) || (year % 400 == 0))
+}
+
+const fn days_in_month(month: i32, year: i32) -> i32 {
+  match month {
+    1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+    4 | 6 | 9 | 11 => 30,
+    2 => {
+      // If year is 0, we assume it's a recurring date (like a birthday),
+      // so we must allow Feb 29th.
+      if year == 0 || is_leap_year(year) {
+        29
+      } else {
+        28
+      }
+    }
+    _ => 0,
+  }
+}
+
+fn validate_date(year: i32, month: i32, day: i32) -> Result<(), DateError> {
+  if !(0..=9999).contains(&year) {
+    return Err(DateError::InvalidYear(
+      "Invalid year value (must be within 0 and 9999)".to_string(),
+    ));
+  }
+
+  if !(0..=12).contains(&month) {
+    return Err(DateError::InvalidMonth(
+      "Invalid month value (must be within 0 and 12)".to_string(),
+    ));
+  }
+
+  if !(0..=31).contains(&day) {
+    return Err(DateError::InvalidDay(
+      "Invalid day value (must be within 0 and 31)".to_string(),
+    ));
+  }
+
+  if year == 0 {
+    if month == 0 {
+      return Err(DateError::InvalidMonth(
+        "The month cannot be set to 0 if the year is also set to 0".to_string(),
+      ));
+    }
+    if day == 0 {
+      return Err(DateError::InvalidDay(
+        "The day cannot be set to 0 if the year is also set to 0".to_string(),
+      ));
+    }
+  } else if month == 0 {
+    if day != 0 {
+      return Err(DateError::InvalidMonth(
+        "The month cannot be 0 if the day is set".to_string(),
+      ));
+    }
+    return Ok(());
+  }
+
+  if day != 0 {
+    let max_days = days_in_month(month, year);
+    if day > max_days {
+      return Err(DateError::InvalidDay(alloc::format!(
+        "Invalid day {day} for month {month} (max is {max_days} for year {year})"
+      )));
+    }
+  }
+
+  Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  fn date(y: i32, m: i32, d: i32) -> Result<Date, DateError> {
+    Date::new(y, m, d)
+  }
+
+  #[test]
+  fn test_date_kinds_creation() {
+    // 1. Full Date
+    let full = date(2024, 1, 15).unwrap();
+    assert_eq!(full.kind(), DateKind::Full);
+    assert_eq!(full.to_string(), "2024-01-15");
+    assert!(full.is_valid());
+
+    // 2. Year Only
+    let year = date(2024, 0, 0).unwrap();
+    assert_eq!(year.kind(), DateKind::YearOnly);
+    assert_eq!(year.to_string(), "2024");
+    assert!(year.is_year_only());
+
+    // 3. Year and Month (Credit Card style)
+    let ym = date(2025, 12, 0).unwrap();
+    assert_eq!(ym.kind(), DateKind::YearAndMonth);
+    assert_eq!(ym.to_string(), "2025-12");
+    assert!(ym.is_year_and_month());
+
+    // 4. Month and Day (Birthday style)
+    let md = date(0, 5, 20).unwrap();
+    assert_eq!(md.kind(), DateKind::MonthAndDay);
+    assert_eq!(md.to_string(), "05-20");
+    assert!(md.is_month_and_day());
+  }
+
+  #[test]
+  fn test_validation_failures() {
+    // Bounds checks
+    assert!(matches!(date(-1, 1, 1), Err(DateError::InvalidYear(_))));
+    assert!(matches!(date(10000, 1, 1), Err(DateError::InvalidYear(_))));
+    assert!(matches!(date(2024, 13, 1), Err(DateError::InvalidMonth(_))));
+    assert!(matches!(date(2024, 1, 32), Err(DateError::InvalidDay(_))));
+
+    // Year=0, Month=0 -> Invalid
+    assert!(matches!(date(0, 0, 5), Err(DateError::InvalidMonth(_))));
+
+    // Year=0, Day=0 -> Invalid
+    assert!(matches!(date(0, 5, 0), Err(DateError::InvalidDay(_))));
+
+    // Year set, Month=0, Day set -> Invalid (Cannot have Day without Month)
+    assert!(matches!(date(2024, 0, 5), Err(DateError::InvalidMonth(_))));
+  }
+
+  #[test]
+  fn test_ordering() {
+    // Same Kind Comparison
+    let d1 = date(2024, 5, 10).unwrap();
+    let d2 = date(2024, 5, 11).unwrap();
+    let d3 = date(2025, 1, 1).unwrap();
+
+    assert!(d1 < d2);
+    assert!(d2 < d3);
+    assert!(d1 < d3);
+
+    // Year Only Comparison
+    let y1 = date(2023, 0, 0).unwrap();
+    let y2 = date(2024, 0, 0).unwrap();
+    assert!(y1 < y2);
+
+    // Different Kinds should return None (not comparable)
+    let full = date(2024, 1, 1).unwrap();
+    let year_only = date(2024, 0, 0).unwrap();
+    assert_eq!(full.partial_cmp(&year_only), None);
+
+    // Month-Day Comparison
+    let md1 = date(0, 2, 1).unwrap();
+    let md2 = date(0, 2, 2).unwrap();
+    assert!(md1 < md2);
+  }
+
+  #[test]
+  fn test_calendar_validation() {
+    // Standard Months
+    assert!(Date::new(2023, 1, 31).is_ok());
+    assert!(Date::new(2023, 4, 30).is_ok());
+    assert!(Date::new(2023, 4, 31).is_err()); // April has 30 days
+
+    // Non-Leap Year
+    assert!(Date::new(2023, 2, 28).is_ok());
+    assert!(Date::new(2023, 2, 29).is_err()); // 2023 is not leap
+
+    // Leap Year
+    assert!(Date::new(2024, 2, 29).is_ok());
+    assert!(Date::new(2024, 2, 30).is_err());
+
+    // Century Leap Year rules
+    assert!(Date::new(1900, 2, 29).is_err()); // 1900 not leap (div by 100)
+    assert!(Date::new(2000, 2, 29).is_ok()); // 2000 is leap (div by 400)
+  }
+
+  #[test]
+  fn test_special_zero_cases() {
+    // YearOnly (Year set, Month 0, Day 0) - Should be OK now
+    assert!(Date::new(2024, 0, 0).is_ok());
+
+    // YearAndMonth (Year set, Month set, Day 0) - OK
+    assert!(Date::new(2024, 2, 0).is_ok());
+
+    // Invalid: Year set, Month 0, Day set
+    assert!(Date::new(2024, 0, 5).is_err());
+
+    // Recurrent Date (Year 0) - Leap Day
+    // "Feb 29" without a year is a valid concept (e.g. "My birthday is Feb 29")
+    assert!(Date::new(0, 2, 29).is_ok());
+    assert!(Date::new(0, 2, 30).is_err());
+  }
+
+  #[cfg(feature = "chrono")]
+  mod chrono_tests {
+    use super::*;
+    use chrono::NaiveDate;
+
+    #[test]
+    fn test_to_naive_date() {
+      let d = date(2024, 2, 29).unwrap(); // Leap year
+      let naive = d.to_naive_date().unwrap();
+      assert_eq!(naive, NaiveDate::from_ymd_opt(2024, 2, 29).unwrap());
+    }
+
+    #[test]
+    fn test_from_naive_date() {
+      let naive = NaiveDate::from_ymd_opt(2023, 10, 25).unwrap();
+      let d: Date = naive.into();
+      assert_eq!(d.year, 2023);
+      assert_eq!(d.month, 10);
+      assert_eq!(d.day, 25);
+      assert_eq!(d.kind(), DateKind::Full);
     }
   }
 }
