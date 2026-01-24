@@ -1,14 +1,17 @@
 use core::fmt::Display;
 
-use crate::rpc::{Code, HttpHeader, HttpRequest, HttpResponse};
+use crate::rpc::{Code, HttpRequest, HttpResponse};
 
 impl HttpRequest {
   has_impl!(method);
   has_impl!(uri);
 
   /// Returns true if the [`HttpRequest`] contains the given header.
-  pub fn has_header(&self, header: &HttpHeader) -> bool {
-    self.headers.contains(header)
+  pub fn has_header(&self, name: &str, value: &str) -> bool {
+    self
+      .headers
+      .iter()
+      .any(|h| h.key == name && h.value == value)
   }
 }
 
@@ -19,8 +22,11 @@ impl HttpResponse {
   }
 
   /// Returns true if the [`HttpResponse`] contains the given header.
-  pub fn has_header(&self, header: &HttpHeader) -> bool {
-    self.headers.contains(header)
+  pub fn has_header(&self, name: &str, value: &str) -> bool {
+    self
+      .headers
+      .iter()
+      .any(|h| h.key == name && h.value == value)
   }
 
   has_impl!(reason);
