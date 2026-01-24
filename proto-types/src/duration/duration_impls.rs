@@ -1,14 +1,16 @@
 use crate::Duration;
 
 impl core::cmp::PartialOrd for Duration {
+  #[inline]
   fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
     Some(self.cmp(other))
   }
 }
 
 impl core::cmp::Ord for Duration {
+  #[inline]
   fn cmp(&self, other: &Self) -> core::cmp::Ordering {
-    (self.seconds, self.nanos).cmp(&(other.seconds, other.nanos))
+    self.total_nanos().cmp(&other.total_nanos())
   }
 }
 
