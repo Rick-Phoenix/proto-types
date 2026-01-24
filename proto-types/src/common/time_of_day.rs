@@ -295,3 +295,87 @@ impl TimeOfDay {
     nanos: 0,
   };
 }
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+  use alloc::string::ToString;
+
+  fn t(h: i32, m: i32, s: i32, n: i32) -> Result<TimeOfDay, TimeOfDayError> {
+    TimeOfDay::new(h, m, s, n)
+  }
+
+  #[test]
+  fn test_validation() {
+    // Valid boundaries
+    assert!(t(0, 0, 0, 0).is_ok());
+    assert!(t(23, 59, 59, 999_999_999).is_ok());
+
+    // Invalid Hours
+    assert_eq!(t(24, 0, 0, 0), Err(TimeOfDayError::InvalidHours));
+    assert_eq!(t(-1, 0, 0, 0), Err(TimeOfDayError::InvalidHours));
+
+    // Invalid Minutes
+    assert_eq!(t(12, 60, 0, 0), Err(TimeOfDayError::InvalidMinutes));
+
+    // Invalid Seconds
+    assert_eq!(t(12, 0, 60, 0), Err(TimeOfDayError::InvalidSeconds));
+
+    // Invalid Nanos
+    assert_eq!(
+      t(12, 0, 0, 1_000_000_000),
+      Err(TimeOfDayError::InvalidNanos)
+    );
+  }
+
+  #[test]
+  fn test_constants() {
+    let mid = TimeOfDay::MIDNIGHT;
+    assert_eq!(mid.hours, 0);
+    assert_eq!(mid.nanos_since_midnight(), 0);
+
+    let noon = TimeOfDay::NOON;
+    assert_eq!(noon.hours, 12);
+    // 12 * 60 * 60 * 1e9
+    assert_eq!(noon.nanos_since_midnight(), 12 * 3600 * 1_000_000_000);
+  }
+
+  #[test]
+  fn test_ordering() {
+    let t1 = t(10, 0, 0, 0).unwrap();
+    let t2 = t(11, 0, 0, 0).unwrap();
+    let t3 = t(10, 0, 0, 1).unwrap(); // 1ns later
+
+    assert!(t1 < t2);
+    assert!(t1 < t3); // Check nanos precision
+    assert!(t3 < t2);
+  }
+
+  #[test]
+  fn test_display() {
+    // Standard
+    let time = t(12, 30, 45, 0).unwrap();
+    assert_eq!(time.to_string(), "12:30:45");
+
+    // With Nanos
+    let precise = t(12, 30, 45, 123).unwrap();
+    // :09 formatting pads with zeros
+    assert_eq!(precise.to_string(), "12:30:45.000000123");
+  }
+
+  #[cfg(feature = "chrono")]
+  mod chrono_tests {
+    use super::*;
+    use chrono::NaiveTime;
+
+    #[test]
+    fn test_conversion() {
+      let time = t(15, 30, 0, 0).unwrap();
+      let naive: NaiveTime = time.try_into().unwrap();
+      assert_eq!(naive, NaiveTime::from_hms_opt(15, 30, 0).unwrap());
+
+      let back: TimeOfDay = naive.into();
+      assert_eq!(back, time);
+    }
+  }
+}
