@@ -151,32 +151,3 @@ impl From<ProtoType> for FieldType {
     }
   }
 }
-
-impl From<FieldType> for i32 {
-  fn from(val: FieldType) -> Self {
-    match val {
-      FieldType::Double => ProtoType::Double.into(),
-      FieldType::Float => ProtoType::Float.into(),
-      FieldType::Int32 => ProtoType::Int32.into(),
-      FieldType::Int64 => ProtoType::Int64.into(),
-      FieldType::Uint32 => ProtoType::Uint32.into(),
-      FieldType::Uint64 => ProtoType::Uint64.into(),
-      FieldType::Sint32 => ProtoType::Sint32.into(),
-      FieldType::Sint64 => ProtoType::Sint64.into(),
-      FieldType::Fixed32 => ProtoType::Fixed32.into(),
-      FieldType::Fixed64 => ProtoType::Fixed64.into(),
-      FieldType::Sfixed32 => ProtoType::Sfixed32.into(),
-      FieldType::Sfixed64 => ProtoType::Sfixed64.into(),
-      FieldType::Bool => ProtoType::Bool.into(),
-      FieldType::String => ProtoType::String.into(),
-      FieldType::Bytes => ProtoType::Bytes.into(),
-      FieldType::Message
-      | FieldType::Duration
-      | FieldType::Timestamp
-      | FieldType::Any
-      | FieldType::FieldMask => ProtoType::Message.into(),
-      FieldType::Enum => ProtoType::Enum.into(),
-      FieldType::Group => ProtoType::Group.into(),
-    }
-  }
-}
