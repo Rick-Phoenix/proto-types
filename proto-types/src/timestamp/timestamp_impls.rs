@@ -35,6 +35,7 @@ mod chrono {
 impl Timestamp {
   /// Creates a new instance.
   #[must_use]
+  #[inline]
   pub const fn new(seconds: i64, nanos: i32) -> Self {
     Self { seconds, nanos }
   }
