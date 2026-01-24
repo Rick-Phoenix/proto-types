@@ -1,167 +1,127 @@
-[package]
-name = "proto-types"
+[workspace]
+members = ["proto-types"]
+resolver = "3"
+
+[workspace.metadata.release]
+allow-branch = ["main"]
+enable-all-features = true
+
+[workspace.package]
 version = "0.1.11"
+license = "MPL-2.0"
+authors = ["Rick-Phoenix <https://github.com/Rick-Phoenix>"]
+edition = "2024"
 
-readme = true
+[workspace.dependencies]
+num-traits = "0.2"
+cel = { version = "0.12", features = ["bytes"] }
+prost = { version = "0.14.3", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+syn = { version = "2", features = ["full", "extra-traits"] }
+quote = "1"
+proc-macro2 = "1"
+bytes = { version = "1" }
+chrono = { version = "0.4.42" }
+base64 = "0.22.1"
+thiserror = "2"
+maplit = "1"
+paste = "1"
+document-features = "0.2"
+rust_decimal = "1.37"
 
-description = "⚙️ Implementations for various common protobuf types."
+[workspace.lints.clippy]
+# Until rustfmt supports it and there is a quick fix
+manual_let_else = "allow"
+# These should only be enabled in late development
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
 
-keywords = ["protobuf", "types", "common", "wkt", "no_std"]
-edition = { workspace = true }
-license = { workspace = true }
-authors = { workspace = true }
-repository = { workspace = true }
-
-[lints]
-workspace = true
-
-[package.metadata.release]
-tag = true
-shared-version = false
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]
-
-[dependencies]
-num-traits = { version = "0.2", default-features = false }
-bytes = { version = "1", default-features = false }
-
-paste = { workspace = true }
-
-document-features = { workspace = true }
-
-prost = { workspace = true, features = ["derive"] }
-chrono = { version = "0.4", optional = true, default-features = false, features = [
-  "alloc",
-] }
-
-serde = { version = "1", optional = true, default-features = false }
-serde_json = { version = "1", optional = true, default-features = false }
-base64 = { version = "0.22", optional = true, default-features = false, features = [
-  "alloc",
-] }
-
-cel = { workspace = true, optional = true }
-thiserror = { version = "2", default-features = false }
-
-rust_decimal = { version = "1", optional = true, default-features = false }
-chrono-tz = { version = "0.10", optional = true, default-features = false }
-
-palette = { version = "0.7", optional = true, default-features = false, features = [
-  "alloc",
-] }
-
-diesel = { version = "2", optional = true }
-
-[features]
-default = ["std", "chrono"]
-
-## Enables the now() methods for chrono in a wasm environment
-chrono-wasm = ["chrono", "chrono/wasmbind"]
-
-## Enables the standard library features
-std = [
-  "serde?/std",
-  "serde_json?/std",
-  "chrono?/std",
-  "chrono?/now",
-  "num-traits/std",
-  "bytes/std",
-  "prost/std",
-  "base64?/std",
-  "thiserror/std",
-  "rust_decimal?/std",
-  "chrono-tz?/std",
-  "palette?/std",
-]
-
-diesel-mysql = [
-  "std",
-  "chrono",
-  "dep:diesel",
-  "diesel/chrono",
-  "diesel/mysql_backend",
-]
-diesel-postgres = [
-  "std",
-  "chrono",
-  "dep:diesel",
-  "diesel/chrono",
-  "diesel/postgres_backend",
-]
-diesel-sqlite = [
-  "std",
-  "chrono",
-  "dep:diesel",
-  "diesel/chrono",
-  "diesel/sqlite",
-]
-
-## Enables conversions into cel::Value.
-cel = ["std", "dep:cel"]
-## Enables serde implementations.
-serde = [
-  "dep:serde",
-  "dep:serde_json",
-  "dep:base64",
-  "chrono?/serde",
-  "bytes/serde",
-]
-## Enables implementations for the buf.validate messages and enums.
-protovalidate = []
-## Enables conversion to and from chrono types for the time-related structs.
-chrono = ["dep:chrono", "cel?/chrono"]
-## Enables timezone support for DateTime.
-chrono-tz = ["dep:chrono-tz"]
-
-## Enables all message types from the google.type package.
-all_common = [
-  "decimal",
-  "color",
-  "date",
-  "datetime",
-  "timeofday",
-  "fraction",
-  "money",
-  "interval",
-  "localized_text",
-  "postal_address",
-  "quaternion",
-  "latlng",
-  "expr",
-  "phone_number",
-]
-
-## Enables all message types from the google.rpc package.
-rpc = []
-## Enables support for the google.type.Decimal, with conversions to/from rust_decimal::Decimal.
-decimal = ["dep:rust_decimal"]
-## Enables google.type.Color.
-color = []
-## Enables conversions to and from types from the `palette` crate for Color.
-palette = ["dep:palette"]
-## Enables google.type.Date.
-date = []
-## Enables google.type.DateTime.
-datetime = []
-## Enables google.type.TimeOfDay.
-timeofday = []
-## Enables google.type.Fraction.
-fraction = []
-## Enables google.type.Money.
-money = []
-## Enables google.type.Interval.
-interval = []
-## Enables google.type.LocalizedText.
-localized_text = []
-## Enables google.type.PostalAddress.
-postal_address = []
-## Enables google.type.Quaternion.
-quaternion = []
-## Enables google.type.LatLng.
-latlng = []
-## Enables google.type.Expr.
-expr = []
-## Enables google.type.PhoneNumber.
-phone_number = []
+# missing_inline_in_public_items = "warn"
+float_cmp = "warn"
+branches_sharing_code = "warn"
+clear_with_drain = "warn"
+collection_is_never_read = "warn"
+derive_partial_eq_without_eq = "warn"
+equatable_if_let = "warn"
+future_not_send = "warn"
+imprecise_flops = "warn"
+iter_on_empty_collections = "warn"
+iter_on_single_items = "warn"
+literal_string_with_formatting_args = "warn"
+missing_const_for_fn = "warn"
+needless_collect = "warn"
+needless_pass_by_ref_mut = "warn"
+needless_type_cast = "warn"
+non_send_fields_in_send_ty = "warn"
+redundant_clone = "warn"
+suboptimal_flops = "warn"
+suspicious_operation_groupings = "warn"
+too_long_first_doc_paragraph = "warn"
+trait_duplication_in_bounds = "warn"
+tuple_array_conversions = "warn"
+type_repetition_in_bounds = "warn"
+unused_peekable = "warn"
+unused_rounding = "warn"
+use_self = "warn"
+useless_let_if_seq = "warn"
+cast_lossless = "warn"
+cast_possible_truncation = "warn"
+cast_possible_wrap = "warn"
+cast_sign_loss = "warn"
+checked_conversions = "warn"
+cloned_instead_of_copied = "warn"
+collapsible_else_if = "warn"
+comparison_chain = "warn"
+copy_iterator = "warn"
+elidable_lifetime_names = "warn"
+explicit_into_iter_loop = "warn"
+flat_map_option = "warn"
+format_push_string = "warn"
+if_not_else = "warn"
+ignored_unit_patterns = "warn"
+implicit_clone = "warn"
+inconsistent_struct_constructor = "warn"
+into_iter_without_iter = "warn"
+invalid_upcast_comparisons = "warn"
+ip_constant = "warn"
+iter_filter_is_ok = "warn"
+iter_filter_is_some = "warn"
+iter_not_returning_iterator = "warn"
+iter_without_into_iter = "warn"
+large_digit_groups = "warn"
+large_stack_arrays = "warn"
+manual_ilog2 = "warn"
+manual_instant_elapsed = "warn"
+manual_is_power_of_two = "warn"
+manual_midpoint = "warn"
+manual_string_new = "warn"
+match_same_arms = "warn"
+maybe_infinite_iter = "warn"
+mismatching_type_param_order = "warn"
+mut_mut = "warn"
+naive_bytecount = "warn"
+needless_pass_by_value = "warn"
+needless_raw_string_hashes = "warn"
+no_effect_underscore_binding = "warn"
+option_as_ref_cloned = "warn"
+option_option = "warn"
+ref_option = "warn"
+ref_option_ref = "warn"
+return_self_not_must_use = "warn"
+must_use_candidate = "warn"
+same_functions_in_if_condition = "warn"
+stable_sort_primitive = "warn"
+string_add_assign = "warn"
+struct_excessive_bools = "warn"
+trivially_copy_pass_by_ref = "warn"
+unchecked_time_subtraction = "warn"
+uninlined_format_args = "warn"
+unnecessary_box_returns = "warn"
+unnecessary_debug_formatting = "warn"
+unnecessary_join = "warn"
+unnecessary_literal_bound = "warn"
+unnested_or_patterns = "warn"
+unreadable_literal = "warn"
+unused_async = "warn"
+unused_self = "warn"
