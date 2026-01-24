@@ -244,6 +244,7 @@ mod chrono_impls {
   use crate::{Duration, String, ToString, date_time::TimeOffset, datetime::UTC_OFFSET, format};
 
   impl DateTime {
+    #[cfg(any(feature = "std", feature = "chrono-wasm"))]
     /// Returns the current [`DateTime`] with Utc offset.
     #[must_use]
     pub fn now_utc() -> Self {
