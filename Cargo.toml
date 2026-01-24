@@ -16,9 +16,6 @@ edition = "2024"
 num-traits = "0.2"
 cel = { version = "0.12", features = ["bytes"] }
 prost = { version = "0.14", default-features = false }
-serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-bytes = { version = "1" }
 chrono = { version = "0.4" }
 base64 = "0.22"
 thiserror = "2"
