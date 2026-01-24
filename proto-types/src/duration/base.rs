@@ -197,6 +197,7 @@ mod chrono {
   use crate::{Duration, duration::DurationError};
 
   impl From<::chrono::TimeDelta> for Duration {
+    #[inline]
     fn from(value: ::chrono::TimeDelta) -> Self {
       let mut result = Self {
         seconds: value.num_seconds(),
