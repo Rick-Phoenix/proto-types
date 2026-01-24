@@ -7,10 +7,19 @@ use crate::{
   protovalidate::{FieldPath, FieldPathElement, Violation, Violations},
 };
 
+impl FromIterator<Violation> for Violations {
+  fn from_iter<T: IntoIterator<Item = Violation>>(iter: T) -> Self {
+    Self {
+      violations: iter.into_iter().collect(),
+    }
+  }
+}
+
 impl IntoIterator for Violations {
   type Item = Violation;
   type IntoIter = IntoIter<Violation>;
 
+  #[inline]
   fn into_iter(self) -> Self::IntoIter {
     self.violations.into_iter()
   }
@@ -18,18 +27,21 @@ impl IntoIterator for Violations {
 
 impl core::ops::Deref for Violations {
   type Target = Vec<Violation>;
+  #[inline]
   fn deref(&self) -> &Self::Target {
     &self.violations
   }
 }
 
 impl core::ops::DerefMut for Violations {
+  #[inline]
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.violations
   }
 }
 
 impl Extend<Violation> for Violations {
+  #[inline]
   fn extend<T: IntoIterator<Item = Violation>>(&mut self, iter: T) {
     self.violations.extend(iter)
   }
@@ -39,6 +51,7 @@ impl IntoIterator for FieldPath {
   type Item = FieldPathElement;
   type IntoIter = IntoIter<FieldPathElement>;
 
+  #[inline]
   fn into_iter(self) -> Self::IntoIter {
     self.elements.into_iter()
   }
@@ -46,35 +59,46 @@ impl IntoIterator for FieldPath {
 
 impl core::ops::Deref for FieldPath {
   type Target = Vec<FieldPathElement>;
+  #[inline]
   fn deref(&self) -> &Self::Target {
     &self.elements
   }
 }
 
 impl core::ops::DerefMut for FieldPath {
+  #[inline]
   fn deref_mut(&mut self) -> &mut Self::Target {
     &mut self.elements
   }
 }
 
+impl FromIterator<FieldPathElement> for FieldPath {
+  fn from_iter<T: IntoIterator<Item = FieldPathElement>>(iter: T) -> Self {
+    Self {
+      elements: iter.into_iter().collect(),
+    }
+  }
+}
+
 impl Extend<FieldPathElement> for FieldPath {
+  #[inline]
   fn extend<T: IntoIterator<Item = FieldPathElement>>(&mut self, iter: T) {
     self.elements.extend(iter)
   }
 }
 
 impl FieldPath {
+  #[deprecated = "With the Deref impl, you can just use .last()"]
   /// Returns the last member in the elements list, if the list is not empty.
   #[must_use]
+  #[inline]
   pub fn last_field(&self) -> Option<&FieldPathElement> {
-    if let Some(last_field) = self.elements.last() {
-      return Some(last_field);
-    }
-    None
+    self.elements.last()
   }
 
   /// Returns the second last member in the elements list, if the list is not empty.
   #[must_use]
+  #[inline]
   pub fn parent_field(&self) -> Option<&FieldPathElement> {
     let second_last = self
       .elements
@@ -88,18 +112,22 @@ impl FieldPath {
 
   /// Checks if the elements list is empty or not.
   #[must_use]
-  pub fn has_fields(&self) -> bool {
-    self.last_field().is_some()
+  #[inline]
+  #[deprecated = "With the Deref impl, you can just use !.is_empty()"]
+  pub const fn has_fields(&self) -> bool {
+    !self.elements.is_empty()
   }
 
   /// Returns the name of the last member in the elements list, if there is one.
   #[must_use]
+  #[inline]
   pub fn last_field_name(&self) -> Option<&str> {
-    self.last_field().map(|f| f.field_name())
+    self.elements.last().map(|f| f.field_name())
   }
 
   /// Searches for a FieldPathElement by name in the elements list.
   #[must_use]
+  #[inline]
   pub fn get_field(&self, name: &str) -> Option<&FieldPathElement> {
     self
       .elements
@@ -114,7 +142,9 @@ impl FieldPath {
     let mut path: Vec<String> = Vec::new();
 
     for field in self.elements.iter() {
-      path.push(field.field_name().to_string());
+      if let Some(field_name) = field.field_name.as_ref() {
+        path.push(field_name.clone());
+      }
 
       if let Some(key) = &field.subscript {
         path.push(key.to_string());
@@ -134,6 +164,7 @@ impl FieldPath {
 impl Violations {
   /// Creates a new collection of Violations with the specified initial capacity.
   #[must_use]
+  #[inline]
   pub fn with_capacity(capacity: usize) -> Self {
     let violations = Vec::with_capacity(capacity);
     Self { violations }
@@ -141,12 +172,14 @@ impl Violations {
 
   /// Creates a new empty collection of Violations.
   #[must_use]
-  pub fn new() -> Self {
-    Self::default()
+  #[inline]
+  pub const fn new() -> Self {
+    Self { violations: vec![] }
   }
 
   /// Searches for a violation with a specific rule id.
   #[must_use]
+  #[inline]
   pub fn violation_by_rule_id(&self, rule_id: &str) -> Option<&Violation> {
     self
       .violations
@@ -182,6 +215,7 @@ impl Violations {
   ///  assert!(violations.violation_by_field_path("person.name").is_some());
   /// ```
   #[must_use]
+  #[inline]
   pub fn violation_by_field_path(&self, path: &str) -> Option<&Violation> {
     self.violations.iter().find(|v| {
       v.field
@@ -194,16 +228,14 @@ impl Violations {
 impl Violation {
   /// Returns the last member in the elements list, if there is one.
   #[must_use]
+  #[inline]
   pub fn last_field(&self) -> Option<&FieldPathElement> {
-    if let Some(fields) = &self.field {
-      return fields.last_field();
-    }
-
-    None
+    self.field.as_ref().and_then(|f| f.last())
   }
 
   /// Returns the second last member in the elements list, if there is one.
   #[must_use]
+  #[inline]
   pub fn parent_field(&self) -> Option<&FieldPathElement> {
     if let Some(fields) = &self.field {
       return fields.parent_field();
@@ -214,6 +246,7 @@ impl Violation {
 
   /// Searches for a field in the FieldPath list with a specific name.
   #[must_use]
+  #[inline]
   pub fn get_field(&self, name: &str) -> Option<&FieldPathElement> {
     if let Some(fields) = &self.field {
       return fields.get_field(name);
@@ -264,18 +297,25 @@ impl Violation {
 
   /// Checks whether this violation has a FieldPath or not. This may not be the case when a violation is triggered by a rule defined with (buf.validate.message).cel in a message
   #[must_use]
+  #[inline]
   pub const fn has_fields(&self) -> bool {
     self.field.is_some()
   }
 
   /// Checks if the list of FieldPathElements contains a field with a particular name.
   #[must_use]
+  #[inline]
   pub fn has_field_by_name(&self, name: &str) -> bool {
-    self.get_field(name).is_some()
+    self
+      .field
+      .as_ref()
+      .map(|f| f.elements.iter().any(|e| e.field_name() == name))
+      .unwrap_or_default()
   }
 
   /// If a list of path elements is defined, it returns the name of the invalid field (the last field in the list of path elements)
   #[must_use]
+  #[inline]
   pub fn field_name(&self) -> Option<&str> {
     self.last_field().map(|f| f.field_name())
   }
