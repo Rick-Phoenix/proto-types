@@ -85,11 +85,11 @@ impl DateTime {
 
 impl fmt::Display for DateTime {
   fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-    // Pad years to at least 4 digits.
+    // 1. Year formatting (RFC 3339 requires 4 digits, extended years have sign)
     if self.year > 9999 {
       write!(f, "+{}", self.year)?;
     } else if self.year < 0 {
-      write!(f, "{:05}", self.year)?;
+      write!(f, "{:05}", self.year)?; // e.g., -0055
     } else {
       write!(f, "{:04}", self.year)?;
     };
@@ -100,18 +100,21 @@ impl fmt::Display for DateTime {
       self.month, self.day, self.hour, self.minute, self.second,
     )?;
 
-    // Format subseconds to either nothing, millis, micros, or nanos.
+    // 2. Nanoseconds formatting (Fully trimmed)
+    if self.nanos > 0 {
+      let mut n = self.nanos;
+      let mut width = 9;
 
-    let nanos = self.nanos;
+      // Mathematically strip trailing zeros
+      // This reduces precision 'n' and display 'width' in lock-step
+      while n % 10 == 0 {
+        n /= 10;
+        width -= 1;
+      }
 
-    if nanos == 0 {
-      write!(f, "Z")
-    } else if nanos.is_multiple_of(1_000_000) {
-      write!(f, ".{:03}Z", nanos / 1_000_000)
-    } else if nanos.is_multiple_of(1_000) {
-      write!(f, ".{:06}Z", nanos / 1_000)
+      write!(f, ".{:0width$}Z", n, width = width)
     } else {
-      write!(f, ".{nanos:09}Z")
+      write!(f, "Z")
     }
   }
 }

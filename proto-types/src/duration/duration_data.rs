@@ -1,5 +1,5 @@
 use super::data::{Days, Hours, Minutes, Months, Seconds, Weeks, Years};
-use crate::{constants::*, Duration};
+use crate::{Duration, constants::*};
 
 /// The data for a given Duration
 #[derive(Debug, Default, Clone)]
@@ -16,8 +16,8 @@ pub struct DurationData {
 
 impl Duration {
   /// Creates a DurationData instance.
-  #[must_use] 
-  pub fn get_data(&self) -> DurationData {
+  #[must_use]
+  pub const fn get_data(&self) -> DurationData {
     let mut total_seconds = self.seconds.unsigned_abs();
     let years = Years {
       value: total_seconds / SECONDS_PER_YEAR_AVG,

@@ -97,6 +97,7 @@ impl Timestamp {
   ///
   /// [1]: https://github.com/google/protobuf/blob/v3.3.2/src/google/protobuf/util/time_util.cc#L59-L77
   #[must_use]
+  #[inline]
   pub fn normalized(&self) -> Self {
     let mut result = *self;
 
@@ -105,11 +106,13 @@ impl Timestamp {
     result
   }
 
+  #[inline]
   /// Creates a new `Timestamp` at the start of the provided UTC date.
   pub fn date(year: i64, month: u8, day: u8) -> Result<Self, TimestampError> {
     Self::date_time_nanos(year, month, day, 0, 0, 0, 0)
   }
 
+  #[inline]
   /// Creates a new `Timestamp` instance with the provided UTC date and time.
   pub fn date_time(
     year: i64,
@@ -127,6 +130,7 @@ impl Timestamp {
     Self::date_time_nanos(year, month, day, hour, minute, second, 0)
   }
 
+  #[inline]
   /// Creates a new `Timestamp` instance with the provided UTC date and time.
   pub fn date_time_nanos(
     year: i64,
