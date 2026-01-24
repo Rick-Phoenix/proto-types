@@ -47,6 +47,7 @@ impl Interval {
     })
   }
 
+  #[cfg(any(feature = "std", feature = "chrono-wasm"))]
   /// Creates an [`Interval`] going from now to the `end_time` specified.
   /// The present moment is calculated using the SystemTime.
   #[must_use]
@@ -58,6 +59,7 @@ impl Interval {
     }
   }
 
+  #[cfg(any(feature = "std", feature = "chrono-wasm"))]
   /// Creates a new [`Interval`] going from the specified `start_time` to the present moment.
   /// The present moment is calculated using the SystemTime.
   #[must_use]

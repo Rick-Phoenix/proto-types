@@ -140,6 +140,7 @@ mod chrono_impls {
       self.try_into()
     }
 
+    #[cfg(any(feature = "std", feature = "chrono-wasm"))]
     /// Returns the current date.
     #[must_use]
     #[inline]
