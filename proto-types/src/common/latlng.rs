@@ -4,6 +4,7 @@ use crate::LatLng;
 
 /// Errors that can occur during the creation or validation of a [`LatLng`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum LatLngError {
   #[error("Latitude out of valid range (-90.0, +90.0)")]
   InvalidLatitude,

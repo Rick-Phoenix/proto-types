@@ -7,6 +7,7 @@ use thiserror::Error;
 use crate::{Any, Empty, FieldMask, Vec, duration::DurationError, timestamp::TimestampError};
 
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum CelConversionError {
   #[error("{0}")]
   DurationError(#[from] DurationError),

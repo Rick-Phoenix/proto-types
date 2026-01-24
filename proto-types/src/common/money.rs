@@ -14,6 +14,7 @@ const NANO_FACTOR: i32 = 1_000_000_000;
 
 /// Errors that can occur during the creation, conversion or validation of [`Money`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum MoneyError {
   #[error("Currency mismatch: Expected '{expected}', found '{found}'")]
   CurrencyMismatch { expected: String, found: String },

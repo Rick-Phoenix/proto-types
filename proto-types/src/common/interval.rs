@@ -6,6 +6,7 @@ use crate::{Duration, String, Timestamp, ToString, common::Interval, constants::
 
 /// Errors that can occur during the creation, conversion or validation of an [`Interval`].
 #[derive(Debug, Error, PartialEq, Eq, Clone)]
+#[non_exhaustive]
 pub enum IntervalError {
   #[error("Interval's end_time is before its start_time")]
   EndTimeBeforeStartTime,
