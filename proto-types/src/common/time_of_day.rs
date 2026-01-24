@@ -149,149 +149,149 @@ impl TimeOfDay {
   pub fn is_valid(&self) -> bool {
     validate_time_of_day(self.hours, self.minutes, self.seconds, self.nanos).is_ok()
   }
-}
 
-pub const MIDNIGHT: TimeOfDay = TimeOfDay {
-  hours: 0,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const ONE_AM: TimeOfDay = TimeOfDay {
-  hours: 1,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const TWO_AM: TimeOfDay = TimeOfDay {
-  hours: 2,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const THREE_AM: TimeOfDay = TimeOfDay {
-  hours: 3,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const FOUR_AM: TimeOfDay = TimeOfDay {
-  hours: 4,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const FIVE_AM: TimeOfDay = TimeOfDay {
-  hours: 5,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const SIX_AM: TimeOfDay = TimeOfDay {
-  hours: 6,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const SEVEN_AM: TimeOfDay = TimeOfDay {
-  hours: 7,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const EIGHT_AM: TimeOfDay = TimeOfDay {
-  hours: 8,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const NINE_AM: TimeOfDay = TimeOfDay {
-  hours: 9,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const TEN_AM: TimeOfDay = TimeOfDay {
-  hours: 10,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const ELEVEN_AM: TimeOfDay = TimeOfDay {
-  hours: 11,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const NOON: TimeOfDay = TimeOfDay {
-  hours: 12,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const ONE_PM: TimeOfDay = TimeOfDay {
-  hours: 13,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const TWO_PM: TimeOfDay = TimeOfDay {
-  hours: 14,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const THREE_PM: TimeOfDay = TimeOfDay {
-  hours: 15,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const FOUR_PM: TimeOfDay = TimeOfDay {
-  hours: 16,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const FIVE_PM: TimeOfDay = TimeOfDay {
-  hours: 17,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const SIX_PM: TimeOfDay = TimeOfDay {
-  hours: 18,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const SEVEN_PM: TimeOfDay = TimeOfDay {
-  hours: 19,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const EIGHT_PM: TimeOfDay = TimeOfDay {
-  hours: 20,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const NINE_PM: TimeOfDay = TimeOfDay {
-  hours: 21,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const TEN_PM: TimeOfDay = TimeOfDay {
-  hours: 22,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
-pub const ELEVEN_PM: TimeOfDay = TimeOfDay {
-  hours: 23,
-  minutes: 0,
-  seconds: 0,
-  nanos: 0,
-};
+  pub const MIDNIGHT: Self = Self {
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const ONE_AM: Self = Self {
+    hours: 1,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const TWO_AM: Self = Self {
+    hours: 2,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const THREE_AM: Self = Self {
+    hours: 3,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const FOUR_AM: Self = Self {
+    hours: 4,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const FIVE_AM: Self = Self {
+    hours: 5,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const SIX_AM: Self = Self {
+    hours: 6,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const SEVEN_AM: Self = Self {
+    hours: 7,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const EIGHT_AM: Self = Self {
+    hours: 8,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const NINE_AM: Self = Self {
+    hours: 9,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const TEN_AM: Self = Self {
+    hours: 10,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const ELEVEN_AM: Self = Self {
+    hours: 11,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const NOON: Self = Self {
+    hours: 12,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const ONE_PM: Self = Self {
+    hours: 13,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const TWO_PM: Self = Self {
+    hours: 14,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const THREE_PM: Self = Self {
+    hours: 15,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const FOUR_PM: Self = Self {
+    hours: 16,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const FIVE_PM: Self = Self {
+    hours: 17,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const SIX_PM: Self = Self {
+    hours: 18,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const SEVEN_PM: Self = Self {
+    hours: 19,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const EIGHT_PM: Self = Self {
+    hours: 20,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const NINE_PM: Self = Self {
+    hours: 21,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const TEN_PM: Self = Self {
+    hours: 22,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+  pub const ELEVEN_PM: Self = Self {
+    hours: 23,
+    minutes: 0,
+    seconds: 0,
+    nanos: 0,
+  };
+}
