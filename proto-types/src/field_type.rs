@@ -1,6 +1,6 @@
 use crate::field_descriptor_proto::Type as ProtoType;
 
-/// This is an enhanced enum for protobuf types, which allows precise identification for well known types such as Any, Timestamp or Duration. It is non-exhaustive because other well known types can be added in the future, but it is safe to assume that any non matching variant can will be of the `Message` type.
+/// This is an enhanced enum for protobuf types, which allows precise identification for well known types such as Any, Timestamp or Duration. It is non-exhaustive because other well known types can be added in the future, but it is safe to assume that any non matching variant will be of the generic `Message` type.
 #[derive(Clone, Debug, PartialEq, Eq, Copy)]
 #[non_exhaustive]
 pub enum FieldType {
