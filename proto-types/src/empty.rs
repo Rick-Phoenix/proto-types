@@ -1,6 +1,39 @@
 use prost::Name;
 
-use crate::{Empty, String, constants::PACKAGE_PREFIX, type_url_for};
+use crate::{String, constants::PACKAGE_PREFIX, type_url_for};
+
+/// A generic empty message that you can re-use to avoid defining duplicated
+/// empty messages in your APIs.
+///
+/// A typical example is to use it as the request
+/// or the response type of an API method. For instance:
+///
+/// ```proto
+/// service Foo {
+///   rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
+/// }
+/// ```
+///
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Default)]
+pub struct Empty;
+
+impl ::prost::Message for Empty {
+  fn encode_raw(&self, _: &mut impl ::prost::bytes::BufMut) {}
+  fn merge_field(
+    &mut self,
+    tag: u32,
+    wire_type: ::prost::encoding::wire_type::WireType,
+    buf: &mut impl ::prost::bytes::Buf,
+    ctx: ::prost::encoding::DecodeContext,
+  ) -> ::core::result::Result<(), ::prost::DecodeError> {
+    ::prost::encoding::skip_field(wire_type, tag, buf, ctx)
+  }
+  #[inline]
+  fn encoded_len(&self) -> usize {
+    0
+  }
+  fn clear(&mut self) {}
+}
 
 impl From<()> for Empty {
   fn from((): ()) -> Self {

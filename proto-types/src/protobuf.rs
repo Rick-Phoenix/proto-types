@@ -2291,21 +2291,6 @@ pub struct Timestamp {
   pub nanos: i32,
 }
 
-/// A generic empty message that you can re-use to avoid defining duplicated
-/// empty messages in your APIs.
-///
-/// A typical example is to use it as the request
-/// or the response type of an API method. For instance:
-///
-/// ```proto
-/// service Foo {
-///   rpc Bar(google.protobuf.Empty) returns (google.protobuf.Empty);
-/// }
-/// ```
-///
-#[derive(Clone, Copy, PartialEq, Eq, Hash, ::prost::Message)]
-pub struct Empty {}
-
 /// Wrapper message for `double`.
 ///
 /// The JSON representation for `DoubleValue` is JSON number.
