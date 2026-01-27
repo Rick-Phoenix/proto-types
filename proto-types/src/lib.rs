@@ -22,12 +22,12 @@ pub mod protovalidate;
 #[cfg(feature = "cel")]
 pub mod cel;
 
-mod rpc;
+pub mod rpc;
 pub use rpc::*;
 
 pub mod num_wrappers;
 
-mod common;
+pub mod common;
 pub use common::*;
 pub use protobuf::*;
 mod protobuf;
