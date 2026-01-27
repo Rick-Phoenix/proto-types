@@ -20,6 +20,8 @@ pub trait ProtoIntWrapper:
   + Rem<Self::Target>
 {
   type Target: Num + Clone + Copy + Display + Debug + Eq + Ord + Hash + Default;
+
+  fn name() -> &'static str;
 }
 
 macro_rules! impl_wrapper {
@@ -29,6 +31,13 @@ macro_rules! impl_wrapper {
 
     impl ProtoIntWrapper for $name {
       type Target = $target;
+
+      #[inline]
+      fn name() -> &'static str {
+        paste::paste! {
+          stringify!([< $name:lower >])
+        }
+      }
     }
 
     impl Display for $name {
