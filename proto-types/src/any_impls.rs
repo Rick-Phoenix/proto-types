@@ -1,3 +1,22 @@
+use core::cmp::Ordering;
+
+use crate::Any;
+
+impl Ord for Any {
+  fn cmp(&self, other: &Self) -> Ordering {
+    match self.type_url.cmp(&other.type_url) {
+      Ordering::Equal => self.value.cmp(&other.value),
+      other => other,
+    }
+  }
+}
+
+impl PartialOrd for Any {
+  fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
 #[cfg(feature = "serde")]
 mod serde {
   use core::fmt;
