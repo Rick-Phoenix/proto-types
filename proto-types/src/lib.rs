@@ -54,6 +54,7 @@ mod field_type;
 pub use field_type::FieldType;
 
 mod empty;
+pub use empty::Empty;
 
 mod constants;
 mod conversions;
