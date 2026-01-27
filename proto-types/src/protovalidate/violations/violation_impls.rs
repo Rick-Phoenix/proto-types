@@ -326,7 +326,7 @@ impl From<Violations> for Status {
     let message = if value.violations.len() == 1 && !value.violations[0].message().is_empty() {
       value.violations[0].message()
     } else {
-      "Validation Error"
+      "Validation failure"
     };
 
     Self {
@@ -343,7 +343,7 @@ impl From<Violations> for Status {
 impl From<Violation> for Status {
   fn from(value: Violation) -> Self {
     let message = if value.message().is_empty() {
-      "Validation Error"
+      "Validation failure"
     } else {
       value.message()
     };
@@ -352,7 +352,7 @@ impl From<Violation> for Status {
       code: Code::InvalidArgument.into(),
       message: message.to_string(),
       details: vec![Any {
-        type_url: "type.googleapis.com/buf.validate.Violations".to_string(),
+        type_url: "type.googleapis.com/buf.validate.Violation".to_string(),
         value: value.encode_to_vec(),
       }],
     }
