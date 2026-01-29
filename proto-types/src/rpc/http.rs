@@ -1,6 +1,24 @@
 use core::fmt::Display;
 
-use crate::rpc::{Code, HttpRequest, HttpResponse};
+use crate::{
+  HttpHeader,
+  rpc::{Code, HttpRequest, HttpResponse},
+};
+
+impl PartialOrd for HttpHeader {
+  fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
+    Some(self.cmp(other))
+  }
+}
+
+impl Ord for HttpHeader {
+  fn cmp(&self, other: &Self) -> core::cmp::Ordering {
+    self
+      .key
+      .cmp(&other.key)
+      .then(self.value.cmp(&other.value))
+  }
+}
 
 impl HttpRequest {
   has_impl!(method);
