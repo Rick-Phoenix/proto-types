@@ -3227,7 +3227,7 @@ pub mod timestamp_rules {
 /// `Violations` is a collection of `Violation` messages. This message type is returned by
 /// Protovalidate when a proto message fails to meet the requirements set by the `Rule` validation rules.
 /// Each individual violation is represented by a `Violation` message.
-#[derive(Clone, PartialEq, Eq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Violations {
   /// `violations` is a repeated field that contains all the `Violation` messages corresponding to the violations detected.
   #[prost(message, repeated, tag = "1")]
@@ -3276,7 +3276,7 @@ pub struct Violations {
 ///    }
 /// }
 /// ```
-#[derive(Clone, PartialEq, Eq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct Violation {
   /// `field` is a machine-readable path to the field that failed validation.
   /// This could be a nested field, in which case the path will include all the parent fields leading to the actual field that caused the violation.
@@ -3345,7 +3345,7 @@ pub struct Violation {
 ///
 /// This message provides enough information to render a dotted field path even without protobuf descriptors.
 /// It also provides enough information to resolve a nested field through unknown wire data.
-#[derive(Clone, PartialEq, Eq, ::prost::Message)]
+#[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]
 pub struct FieldPath {
   /// `elements` contains each element of the path, starting from the root and recursing downward.
   #[prost(message, repeated, tag = "1")]
