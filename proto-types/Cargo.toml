@@ -17,7 +17,6 @@ workspace = true
 
 [package.metadata.release]
 tag = true
-shared-version = false
 
 [package.metadata.docs.rs]
 all-features = true
