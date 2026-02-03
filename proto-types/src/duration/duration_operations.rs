@@ -83,6 +83,64 @@ impl Sub<StdDuration> for Duration {
   }
 }
 
+#[cfg(feature = "chrono")]
+impl Add<chrono::TimeDelta> for Duration {
+  type Output = Self;
+
+  fn add(self, rhs: chrono::TimeDelta) -> Self::Output {
+    let total_nanos = i64::from(self.nanos) + i64::from(rhs.subsec_nanos());
+
+    let (extra_secs, final_nanos) = if total_nanos >= 1_000_000_000 {
+      #[allow(clippy::cast_possible_truncation)]
+      (1, (total_nanos - 1_000_000_000) as i32)
+    } else {
+      #[allow(clippy::cast_possible_truncation)]
+      (0, total_nanos as i32)
+    };
+
+    let final_secs = self
+      .seconds
+      .checked_add(rhs.num_seconds())
+      .expect("overflow when adding duration")
+      .checked_add(extra_secs)
+      .expect("overflow when adding duration");
+
+    Self {
+      seconds: final_secs,
+      nanos: final_nanos,
+    }
+  }
+}
+
+#[cfg(feature = "chrono")]
+impl Sub<chrono::TimeDelta> for Duration {
+  type Output = Self;
+
+  fn sub(self, rhs: chrono::TimeDelta) -> Self::Output {
+    let total_nanos = i64::from(self.nanos) - i64::from(rhs.subsec_nanos());
+
+    let (extra_secs, final_nanos) = if total_nanos <= -1_000_000_000 {
+      #[allow(clippy::cast_possible_truncation)]
+      (-1, (total_nanos + 1_000_000_000) as i32)
+    } else {
+      #[allow(clippy::cast_possible_truncation)]
+      (0, total_nanos as i32)
+    };
+
+    let final_secs = self
+      .seconds
+      .checked_sub(rhs.num_seconds())
+      .expect("overflow when subtracting duration")
+      .checked_add(extra_secs)
+      .expect("overflow when subtracting duration");
+
+    Self {
+      seconds: final_secs,
+      nanos: final_nanos,
+    }
+  }
+}
+
 impl Mul<i64> for Duration {
   type Output = Self;
 
