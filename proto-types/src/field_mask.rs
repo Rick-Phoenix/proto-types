@@ -47,19 +47,21 @@ impl FromIterator<String> for FieldMask {
 }
 
 impl FieldMask {
+  /// Creates a new instance.
   #[must_use]
   #[inline]
   pub const fn new(paths: Vec<String>) -> Self {
     Self { paths }
   }
 
+  /// Checks if a path is present in the list.
   #[must_use]
   #[inline]
   pub fn contains_path(&self, path: &str) -> bool {
     self.paths.iter().any(|p| p == path)
   }
 
-  #[deprecated = "With the DerefMut impl, you can use .push() directly"]
+  #[deprecated = "You can use .push() directly to leverage the DerefMut impl"]
   pub fn add_path(&mut self, path: &str) {
     self.paths.push(path.to_string());
   }
