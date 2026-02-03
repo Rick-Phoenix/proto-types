@@ -79,13 +79,17 @@ fn fields_from_total_nanos(total: i128) -> Result<(i64, i32), MoneyError> {
 }
 
 impl Money {
+  /// Returns the total amount in `nano` units.
+  #[inline]
   #[must_use]
   pub const fn total_nanos(&self) -> i128 {
     (self.units as i128) * (NANO_FACTOR as i128) + (self.nanos as i128)
   }
 
+  /// Creates a new instance from a total amount of nanos and a currency code.
   pub fn from_total_nanos(currency: impl Into<String>, total: i128) -> Result<Self, MoneyError> {
     let (units, nanos) = fields_from_total_nanos(total)?;
+
     Ok(Self {
       currency_code: currency.into(),
       units,
@@ -93,7 +97,7 @@ impl Money {
     })
   }
 
-  /// Normalizes the [`Money`] amount and returns a string containing the currency symbol and the monetary amount truncated by the specified decimal places.
+  /// Normalizes the [`Money`] amount and returns a string containing the currency symbol and the monetary amount with the specified amount of decimal places, while truncating the rest.
   #[must_use]
   pub fn to_formatted_string(&self, symbol: &str, decimal_places: u32) -> String {
     let decimal_places = u32::min(9, decimal_places);
@@ -168,7 +172,6 @@ impl Money {
   }
 
   /// Normalizes units and nanos. Fails in case of overflow.
-  #[inline]
   pub fn normalize(mut self) -> Result<Self, MoneyError> {
     let (normalized_units, normalized_nanos) =
       normalize_money_fields_checked(self.units, self.nanos)?;
@@ -179,7 +182,6 @@ impl Money {
   }
 
   /// Creates a new instance, if the normalization does not return errors like Overflow or Underflow.
-  #[inline]
   pub fn new(currency_code: impl Into<String>, units: i64, nanos: i32) -> Result<Self, MoneyError> {
     let (normalized_units, normalized_nanos) = normalize_money_fields_checked(units, nanos)?;
     Ok(Self {
@@ -197,7 +199,6 @@ impl Money {
   /// - `2` rounds to two decimal places (e.g., for cents).
   ///
   /// WARNING: The usage of `f64` introduces floating-point precision issues. Do not use it for critical financial calculations.
-  #[inline]
   pub fn to_rounded_imprecise_f64(&self, decimal_places: u32) -> Result<f64, MoneyError> {
     if decimal_places > i32::MAX as u32 {
       return Err(MoneyError::OutOfRange);
@@ -227,7 +228,6 @@ impl Money {
   ///
   /// WARNING: The usage of `f64` introduces floating-point precision issues. Do not use it for critical financial calculations.
   #[must_use]
-  #[inline]
   pub fn as_imprecise_f64(&self) -> f64 {
     self.units as f64 + (f64::from(self.nanos) / 1_000_000_000.0)
   }
@@ -238,7 +238,6 @@ impl Money {
   /// into units and nanos.
   ///
   /// WARNING: The usage of `f64` introduces floating-point precision issues. Do not use it for critical financial calculations.
-  #[inline]
   pub fn from_imprecise_f64(
     currency_code: impl Into<String>,
     amount: f64,
