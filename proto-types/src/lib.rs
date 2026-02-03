@@ -1,4 +1,3 @@
-// no_std support is planned at a certain point, but not yet implemented
 #![no_std]
 #![deny(clippy::alloc_instead_of_core)]
 #![deny(clippy::std_instead_of_alloc)]
