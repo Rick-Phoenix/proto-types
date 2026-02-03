@@ -27,6 +27,7 @@ pub mod cel;
 pub mod rpc;
 pub use rpc::*;
 
+/// Struct wrappers for protobuf-specific numeric types such as `sint32` or `fixed64`.
 pub mod num_wrappers;
 
 pub mod common;
