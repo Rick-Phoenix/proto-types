@@ -88,7 +88,7 @@ impl Extend<FieldPathElement> for FieldPath {
 }
 
 impl FieldPath {
-  #[deprecated = "With the Deref impl, you can just use .last()"]
+  #[deprecated = "You can just use .last() to leverage the Deref impl"]
   /// Returns the last member in the elements list, if the list is not empty.
   #[must_use]
   #[inline]
@@ -113,7 +113,7 @@ impl FieldPath {
   /// Checks if the elements list is empty or not.
   #[must_use]
   #[inline]
-  #[deprecated = "With the Deref impl, you can just use !.is_empty()"]
+  #[deprecated = "You can just use !.is_empty() to leverage the Deref impl"]
   pub const fn has_fields(&self) -> bool {
     !self.elements.is_empty()
   }
