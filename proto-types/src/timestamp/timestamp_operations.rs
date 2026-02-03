@@ -42,6 +42,22 @@ impl Sub<StdDuration> for Timestamp {
   }
 }
 
+#[cfg(feature = "chrono")]
+impl Sub<chrono::TimeDelta> for Timestamp {
+  type Output = Self;
+
+  fn sub(self, rhs: chrono::TimeDelta) -> Self::Output {
+    let mut new = Self {
+      seconds: self.seconds.saturating_sub(rhs.num_seconds()),
+      nanos: self.nanos.saturating_sub(rhs.subsec_nanos()),
+    };
+
+    new.normalize();
+
+    new
+  }
+}
+
 impl Sub<Duration> for Timestamp {
   type Output = Self;
   #[inline]
@@ -94,6 +110,22 @@ impl Add<StdDuration> for Timestamp {
       nanos: self
         .nanos
         .saturating_add(rhs.subsec_nanos().cast_signed()),
+    };
+
+    new.normalize();
+
+    new
+  }
+}
+
+#[cfg(feature = "chrono")]
+impl Add<chrono::TimeDelta> for Timestamp {
+  type Output = Self;
+
+  fn add(self, rhs: chrono::TimeDelta) -> Self::Output {
+    let mut new = Self {
+      seconds: self.seconds.saturating_add(rhs.num_seconds()),
+      nanos: self.nanos.saturating_add(rhs.subsec_nanos()),
     };
 
     new.normalize();
