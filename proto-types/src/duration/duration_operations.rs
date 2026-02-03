@@ -1,6 +1,77 @@
-use crate::{Duration, constants::NANOS_PER_SECOND};
+use crate::Duration;
+use core::cmp::Ordering;
 use core::ops::{Add, Div, Mul, Sub};
 use core::time::Duration as StdDuration;
+
+impl PartialEq<StdDuration> for Duration {
+  #[inline]
+  fn eq(&self, other: &StdDuration) -> bool {
+    self.total_nanos() == other.as_nanos().cast_signed()
+  }
+}
+
+impl PartialEq<Duration> for StdDuration {
+  #[inline]
+  fn eq(&self, other: &Duration) -> bool {
+    other == self
+  }
+}
+
+impl PartialOrd<StdDuration> for Duration {
+  #[inline]
+  fn partial_cmp(&self, other: &StdDuration) -> Option<Ordering> {
+    Some(
+      self
+        .total_nanos()
+        .cmp(&other.as_nanos().cast_signed()),
+    )
+  }
+}
+
+impl PartialOrd<Duration> for StdDuration {
+  #[inline]
+  fn partial_cmp(&self, other: &Duration) -> Option<Ordering> {
+    other.partial_cmp(self).map(Ordering::reverse)
+  }
+}
+
+#[cfg(feature = "chrono")]
+impl PartialEq<chrono::TimeDelta> for Duration {
+  #[inline]
+  fn eq(&self, other: &chrono::TimeDelta) -> bool {
+    let other_total = (i128::from(other.num_seconds()) * Self::NANOS_PER_SEC_I128)
+      + i128::from(other.subsec_nanos());
+
+    self.total_nanos() == other_total
+  }
+}
+
+#[cfg(feature = "chrono")]
+impl PartialEq<Duration> for chrono::TimeDelta {
+  #[inline]
+  fn eq(&self, other: &Duration) -> bool {
+    other == self
+  }
+}
+
+#[cfg(feature = "chrono")]
+impl PartialOrd<chrono::TimeDelta> for Duration {
+  #[inline]
+  fn partial_cmp(&self, other: &chrono::TimeDelta) -> Option<Ordering> {
+    let other_total = (i128::from(other.num_seconds()) * Self::NANOS_PER_SEC_I128)
+      + i128::from(other.subsec_nanos());
+
+    Some(self.total_nanos().cmp(&other_total))
+  }
+}
+
+#[cfg(feature = "chrono")]
+impl PartialOrd<Duration> for chrono::TimeDelta {
+  #[inline]
+  fn partial_cmp(&self, other: &Duration) -> Option<Ordering> {
+    other.partial_cmp(self).map(Ordering::reverse)
+  }
+}
 
 impl Add<StdDuration> for Duration {
   type Output = Self;
@@ -121,6 +192,7 @@ impl Div<i32> for Duration {
 
 impl Duration {
   const NANOS_PER_SEC: i64 = 1_000_000_000;
+  const NANOS_PER_SEC_I128: i128 = 1_000_000_000;
 
   fn align_signs(mut s: i64, mut n: i32) -> Option<Self> {
     if s > 0 && n < 0 {
@@ -183,14 +255,14 @@ impl Duration {
   #[inline]
   #[must_use]
   pub const fn total_nanos(&self) -> i128 {
-    (self.seconds as i128) * (crate::constants::NANOS_PER_SECOND as i128) + (self.nanos as i128)
+    (self.seconds as i128) * (Self::NANOS_PER_SEC_I128) + (self.nanos as i128)
   }
 
   /// Creates a new normalized instance from a given amount of nanoseconds.
   #[must_use]
   #[inline]
   pub fn from_total_nanos(total: i128) -> Option<Self> {
-    let factor = i128::from(NANOS_PER_SECOND);
+    let factor = Self::NANOS_PER_SEC_I128;
 
     // Integer division truncates towards zero (correct for seconds)
     let seconds_val = total / factor;
@@ -261,7 +333,7 @@ mod tests {
   macro_rules! test_ops {
     ($duration:ident) => {
       #[test]
-      fn test_ops_chrono() {
+      fn test_add_sub() {
         // 1. Add causing carry
         let d1 = dur(1, 900_000_000);
         let d2 = get_duration!($duration, 0, 200_000_000);
@@ -283,6 +355,22 @@ mod tests {
         // -1s
         assert_eq!(diff.seconds, -1);
         assert_eq!(diff.nanos, 0);
+      }
+
+      #[test]
+      fn test_eq_ord() {
+        let d1 = dur(1, 500);
+        let d2 = get_duration!($duration, 1, 600);
+        let d3 = get_duration!($duration, 2, 0);
+
+        assert!(d1 < d2);
+        assert!(d2 < d3);
+
+        // Test normalization-independent comparison
+        // 0s + 1.5B nanos vs 1s + 500M nanos (Should be Equal)
+        let unnormalized = dur(0, 1_500_000_000);
+        let normalized = get_duration!($duration, 1, 500_000_000);
+        assert_eq!(unnormalized.partial_cmp(&normalized), Some(Ordering::Equal));
       }
     };
   }
@@ -360,22 +448,6 @@ mod tests {
     let res: Duration = d / 2;
     assert_eq!(res.seconds, 0);
     assert_eq!(res.nanos, -500_000_000);
-  }
-
-  #[test]
-  fn test_ord() {
-    let d1 = dur(1, 500);
-    let d2 = dur(1, 600);
-    let d3 = dur(2, 0);
-
-    assert!(d1 < d2);
-    assert!(d2 < d3);
-
-    // Test normalization-independent comparison
-    // 0s + 1.5B nanos vs 1s + 500M nanos (Should be Equal)
-    let unnormalized = dur(0, 1_500_000_000);
-    let normalized = dur(1, 500_000_000);
-    assert_eq!(unnormalized.cmp(&normalized), Ordering::Equal);
   }
 
   #[test]
