@@ -26,30 +26,21 @@ impl Display for DateTime {
       self.hours, self.minutes, self.seconds
     )?;
 
-    match &self.time_offset {
-      Some(TimeOffset::UtcOffset(duration)) => {
-        let total_offset_seconds = duration.normalized().seconds;
-        let is_negative = total_offset_seconds < 0;
-        let abs_total_offset_seconds = total_offset_seconds.abs();
+    if let Some(TimeOffset::UtcOffset(duration)) = &self.time_offset {
+      let total_offset_seconds = duration.normalized().seconds;
+      let is_negative = total_offset_seconds < 0;
+      let abs_total_offset_seconds = total_offset_seconds.abs();
 
-        let hours = abs_total_offset_seconds / 3600;
-        let minutes = (abs_total_offset_seconds % 3600) / 60;
+      let hours = abs_total_offset_seconds / 3600;
+      let minutes = (abs_total_offset_seconds % 3600) / 60;
 
-        if is_negative {
-          write!(f, "-{hours:02}:{minutes:02}")?
-        } else if total_offset_seconds == 0 && duration.nanos == 0 {
-          write!(f, "Z")? // 'Z' for UTC
-        } else {
-          write!(f, "+{hours:02}:{minutes:02}")?
-        }
+      if is_negative {
+        write!(f, "-{hours:02}:{minutes:02}")?
+      } else if total_offset_seconds == 0 && duration.nanos == 0 {
+        write!(f, "Z")? // 'Z' for UTC
+      } else {
+        write!(f, "+{hours:02}:{minutes:02}")?
       }
-      Some(TimeOffset::TimeZone(tz)) => {
-        // Named timezones are not usually part of the ISO 8601 string itself
-        // (it usually implies fixed offset or UTC).
-        // However, for debugging/clarity, we can append it in parentheses.
-        write!(f, "[{}]", tz.id)?;
-      }
-      None => {}
     }
     Ok(())
   }
@@ -605,7 +596,7 @@ mod tests {
       id: "America/New_York".into(),
       version: String::new(),
     });
-    assert_eq!(named.to_string(), "2024-01-15T12:30:45[America/New_York]");
+    assert_eq!(named.to_string(), "2024-01-15T12:30:45");
   }
 
   #[test]
