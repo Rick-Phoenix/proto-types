@@ -1,6 +1,36 @@
-use core::ops::{Add, Div, Mul, Sub};
-
 use crate::{Duration, constants::NANOS_PER_SECOND};
+use core::ops::{Add, Div, Mul, Sub};
+use core::time::Duration as StdDuration;
+
+impl Add<StdDuration> for Duration {
+  type Output = Self;
+
+  fn add(self, rhs: StdDuration) -> Self::Output {
+    let total_nanos = i64::from(self.nanos) + i64::from(rhs.subsec_nanos());
+
+    let (extra_secs, final_nanos) = if total_nanos >= 1_000_000_000 {
+      #[allow(clippy::cast_possible_truncation)]
+      (1, (total_nanos - 1_000_000_000) as i32)
+    } else {
+      #[allow(clippy::cast_possible_truncation)]
+      (0, total_nanos as i32)
+    };
+
+    let rhs_secs = i64::try_from(rhs.as_secs()).expect("overflow when adding duration");
+
+    let final_secs = self
+      .seconds
+      .checked_add(rhs_secs)
+      .expect("overflow when adding duration")
+      .checked_add(extra_secs)
+      .expect("overflow when adding duration");
+
+    Self {
+      seconds: final_secs,
+      nanos: final_nanos,
+    }
+  }
+}
 
 impl Add for Duration {
   type Output = Self;
@@ -20,6 +50,36 @@ impl Sub for Duration {
     self
       .checked_sub(&other)
       .expect("Duration subtraction overflowed")
+  }
+}
+
+impl Sub<StdDuration> for Duration {
+  type Output = Self;
+
+  fn sub(self, rhs: StdDuration) -> Self::Output {
+    let total_nanos = i64::from(self.nanos) - i64::from(rhs.subsec_nanos());
+
+    let (extra_secs, final_nanos) = if total_nanos <= -1_000_000_000 {
+      #[allow(clippy::cast_possible_truncation)]
+      (-1, (total_nanos + 1_000_000_000) as i32)
+    } else {
+      #[allow(clippy::cast_possible_truncation)]
+      (0, total_nanos as i32)
+    };
+
+    let rhs_secs = i64::try_from(rhs.as_secs()).expect("overflow when subtracting duration");
+
+    let final_secs = self
+      .seconds
+      .checked_sub(rhs_secs)
+      .expect("overflow when subtracting duration")
+      .checked_add(extra_secs)
+      .expect("overflow when subtracting duration");
+
+    Self {
+      seconds: final_secs,
+      nanos: final_nanos,
+    }
   }
 }
 
