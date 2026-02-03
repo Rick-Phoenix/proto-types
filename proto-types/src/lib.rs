@@ -6,7 +6,10 @@
 #![doc = include_str!("../README.md")]
 
 //! # Feature flags
-#![doc = document_features::document_features!()]
+#![cfg_attr(
+		feature = "document-features",
+		doc = ::document_features::document_features!()
+)]
 
 #[cfg(any(test, feature = "std"))]
 extern crate std;

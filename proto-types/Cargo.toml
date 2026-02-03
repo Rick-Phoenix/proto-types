@@ -28,7 +28,7 @@ bytes = { version = "1", default-features = false }
 
 paste = { workspace = true }
 
-document-features = { workspace = true }
+document-features = { workspace = true, optional = true }
 
 prost = { workspace = true, features = ["derive"] }
 chrono = { version = "0.4", optional = true, default-features = false, features = [
@@ -60,6 +60,8 @@ default = ["std", "chrono"]
 
 ## Enables the now() methods for chrono in a wasm environment
 chrono-wasm = ["chrono", "chrono/wasmbind"]
+
+document-features = ["dep:document-features"]
 
 ## Enables the standard library features
 std = [
