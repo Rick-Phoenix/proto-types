@@ -3,6 +3,7 @@ use crate::*;
 use core::ops::*;
 use num_traits::{Num, One, Zero};
 
+/// Trait for numbers that represent protobuf integer types, such as `sint32` or `fixed64`.
 pub trait ProtoIntWrapper:
   Num
   + Clone
@@ -21,11 +22,15 @@ pub trait ProtoIntWrapper:
 {
   type Target: Num + Clone + Copy + Display + Debug + Eq + Ord + Hash + Default;
 
+  /// The name of the associated type (i.e. "sfixed32")
   fn name() -> &'static str;
 }
 
 macro_rules! impl_wrapper {
   ($name:ident, $target:ty) => {
+    #[doc = "Wrapper struct that represents the protobuf type `"]
+    #[doc = stringify!($name)]
+    #[doc = "`. It implements [`ProtoIntWrapper`]."]
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Default)]
     pub struct $name(pub $target);
 
