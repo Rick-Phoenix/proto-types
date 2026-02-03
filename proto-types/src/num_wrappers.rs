@@ -1,6 +1,10 @@
 use crate::*;
 
-use core::ops::*;
+use core::{
+  borrow::{Borrow, BorrowMut},
+  cmp::Ordering,
+  ops::*,
+};
 use num_traits::{Num, One, Zero};
 
 /// Trait for numbers that represent protobuf integer types, such as `sint32` or `fixed64`.
@@ -19,6 +23,11 @@ pub trait ProtoIntWrapper:
   + Mul<Self::Target>
   + Div<Self::Target>
   + Rem<Self::Target>
+  + Into<Self::Target>
+  + Borrow<Self::Target>
+  + BorrowMut<Self::Target>
+  + AsRef<Self::Target>
+  + PartialOrd<Self::Target>
 {
   type Target: Num + Clone + Copy + Display + Debug + Eq + Ord + Hash + Default;
 
@@ -51,6 +60,20 @@ macro_rules! impl_wrapper {
       }
     }
 
+    impl PartialOrd<$target> for $name {
+      #[inline]
+      fn partial_cmp(&self, other: &$target) -> core::prelude::v1::Option<core::cmp::Ordering> {
+        Some(self.0.cmp(other))
+      }
+    }
+
+    impl PartialOrd<$name> for $target {
+      #[inline]
+      fn partial_cmp(&self, other: &$name) -> core::prelude::v1::Option<core::cmp::Ordering> {
+        other.partial_cmp(self).map(Ordering::reverse)
+      }
+    }
+
     impl core::ops::Deref for $name {
       type Target = $target;
       #[inline]
@@ -63,6 +86,13 @@ macro_rules! impl_wrapper {
       #[inline]
       fn eq(&self, other: &$target) -> bool {
         self.0 == *other
+      }
+    }
+
+    impl core::cmp::PartialEq<$name> for $target {
+      #[inline]
+      fn eq(&self, other: &$name) -> bool {
+        other == self
       }
     }
 
@@ -195,6 +225,13 @@ macro_rules! impl_wrapper {
       #[inline]
       fn from(value: $name) -> $target {
         value.0
+      }
+    }
+
+    impl From<$target> for $name {
+      #[inline]
+      fn from(value: $target) -> $name {
+        Self(value)
       }
     }
 
