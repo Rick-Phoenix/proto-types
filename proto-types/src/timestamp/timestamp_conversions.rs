@@ -5,6 +5,7 @@ mod chrono_impls {
   use crate::{Timestamp, timestamp::TimestampError};
 
   impl From<DateTime<Utc>> for Timestamp {
+    #[inline]
     fn from(datetime: DateTime<Utc>) -> Self {
       let mut ts = Self {
         seconds: datetime.timestamp(),
@@ -17,6 +18,7 @@ mod chrono_impls {
   }
 
   impl From<NaiveDateTime> for Timestamp {
+    #[inline]
     fn from(datetime: NaiveDateTime) -> Self {
       let mut ts = Self {
         seconds: datetime.and_utc().timestamp(),
@@ -34,6 +36,7 @@ mod chrono_impls {
   impl TryFrom<Timestamp> for DateTime<Utc> {
     type Error = TimestampError;
 
+    #[inline]
     fn try_from(mut timestamp: Timestamp) -> Result<Self, Self::Error> {
       timestamp.normalize();
 
@@ -47,6 +50,7 @@ mod chrono_impls {
   impl TryFrom<Timestamp> for NaiveDateTime {
     type Error = TimestampError;
 
+    #[inline]
     fn try_from(mut timestamp: Timestamp) -> Result<Self, Self::Error> {
       timestamp.normalize();
 
@@ -61,6 +65,7 @@ mod chrono_impls {
   impl TryFrom<Timestamp> for DateTime<FixedOffset> {
     type Error = TimestampError;
 
+    #[inline]
     fn try_from(mut timestamp: Timestamp) -> Result<Self, Self::Error> {
       timestamp.normalize();
 
@@ -73,6 +78,7 @@ mod chrono_impls {
   impl TryFrom<chrono::DateTime<chrono::FixedOffset>> for Timestamp {
     type Error = TimestampError;
 
+    #[inline]
     fn try_from(dt: chrono::DateTime<chrono::FixedOffset>) -> Result<Self, Self::Error> {
       let seconds = dt.timestamp();
       let nanos = dt

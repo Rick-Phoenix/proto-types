@@ -252,14 +252,12 @@ mod chrono_impls {
       Utc::now().into()
     }
 
-    #[inline]
     /// Converts this [`DateTime`] to [`chrono::DateTime`] Utc.
     /// It succeeds if the [`TimeOffset`] is a UtcOffset with 0 seconds and nanos.
     pub fn to_datetime_utc(self) -> Result<chrono::DateTime<chrono::Utc>, DateTimeError> {
       self.try_into()
     }
 
-    #[inline]
     /// Converts this [`DateTime`] to [`chrono::DateTime`]<[`FixedOffset`](chrono::FixedOffset)>.
     /// It succeeds if the [`TimeOffset`] is a UtcOffset that results in an unambiguous [`FixedOffset`](chrono::FixedOffset).
     pub fn to_fixed_offset_datetime(
@@ -268,7 +266,6 @@ mod chrono_impls {
       self.try_into()
     }
 
-    #[inline]
     #[cfg(feature = "chrono-tz")]
     /// Converts this [`DateTime`] to [`chrono::DateTime`]<[`Tz`](chrono_tz::Tz)>.
     /// It succeeds if the [`TimeOffset`] is a [`TimeZone`] that maps to a valid [`Tz`](chrono_tz::Tz) or if the [`TimeOffset`] is a UtcOffset with 0 seconds and nanos.

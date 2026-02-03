@@ -30,6 +30,7 @@ pub enum FieldType {
 
 impl FieldType {
   #[must_use]
+  #[inline]
   pub const fn is_scalar(&self) -> bool {
     matches!(
       self,
@@ -53,6 +54,7 @@ impl FieldType {
 
   /// Returns the short name for the field type. For message types such as `Timestamp`, it returns just the short name without the package path.
   #[must_use]
+  #[inline]
   pub const fn name(&self) -> &'static str {
     match self {
       Self::Double => "double",
@@ -83,6 +85,7 @@ impl FieldType {
   /// Returns the full name for the field type, using the
   /// fully-qualified name for Google's well-known types.
   #[must_use]
+  #[inline]
   pub const fn full_name(&self) -> &'static str {
     match self {
       // Special cases for well-known types
@@ -99,6 +102,7 @@ impl FieldType {
 }
 
 impl From<FieldType> for ProtoType {
+  #[inline]
   fn from(value: FieldType) -> Self {
     match value {
       FieldType::Double => Self::Double,
@@ -128,6 +132,7 @@ impl From<FieldType> for ProtoType {
 }
 
 impl From<ProtoType> for FieldType {
+  #[inline]
   fn from(value: ProtoType) -> Self {
     match value {
       ProtoType::Double => Self::Double,

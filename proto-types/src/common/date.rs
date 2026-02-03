@@ -135,7 +135,6 @@ mod chrono_impls {
   use crate::{Date, ToString, date::DateError, format};
 
   impl Date {
-    #[inline]
     /// Converts this [`Date`] to [`chrono::NaiveDate`]. It fails if the year, month or day are set to zero.
     pub fn to_naive_date(self) -> Result<::chrono::NaiveDate, DateError> {
       self.try_into()

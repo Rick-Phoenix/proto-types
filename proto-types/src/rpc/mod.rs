@@ -6,6 +6,7 @@ macro_rules! has_impl {
   ($name:ident) => {
     paste::paste! {
       #[doc = "Returns true if the `" $name "` matches the given value."]
+      #[inline]
       pub fn [< has_ $name >](&self, $name: &str) -> bool {
         self.$name == $name
       }
@@ -15,6 +16,7 @@ macro_rules! has_impl {
   ($name:ident, $name_override:ident) => {
     paste::paste! {
       #[doc = "Returns true if the `" $name "` matches the given value."]
+      #[inline]
       pub fn [< has_ $name >](&self, $name_override: &str) -> bool {
         self.$name_override == $name_override
       }
@@ -216,6 +218,7 @@ impl Code {
   /// The values are not transformed in any way and thus are considered stable
   /// (if the ProtoBuf definition does not change) and safe for programmatic use.
   #[must_use]
+  #[inline]
   pub const fn as_str_name(&self) -> &'static str {
     match self {
       Self::Ok => "OK",
@@ -239,6 +242,7 @@ impl Code {
   }
   /// Creates an enum from field names used in the ProtoBuf definition.
   #[must_use]
+  #[inline]
   pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
     match value {
       "OK" => Some(Self::Ok),

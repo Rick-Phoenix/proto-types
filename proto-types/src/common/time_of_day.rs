@@ -57,7 +57,6 @@ impl From<chrono::NaiveTime> for TimeOfDay {
 #[cfg(feature = "chrono")]
 impl TryFrom<TimeOfDay> for chrono::NaiveTime {
   type Error = TimeOfDayError;
-  #[inline]
   fn try_from(value: TimeOfDay) -> Result<Self, Self::Error> {
     let hours_u32: u32 = value
       .hours

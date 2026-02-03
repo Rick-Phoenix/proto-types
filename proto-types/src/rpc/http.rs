@@ -6,12 +6,14 @@ use crate::{
 };
 
 impl PartialOrd for HttpHeader {
+  #[inline]
   fn partial_cmp(&self, other: &Self) -> Option<core::cmp::Ordering> {
     Some(self.cmp(other))
   }
 }
 
 impl Ord for HttpHeader {
+  #[inline]
   fn cmp(&self, other: &Self) -> core::cmp::Ordering {
     self
       .key
@@ -24,6 +26,7 @@ impl HttpRequest {
   has_impl!(method);
   has_impl!(uri);
 
+  #[inline]
   /// Returns true if the [`HttpRequest`] contains the given header.
   pub fn has_header(&self, name: &str, value: &str) -> bool {
     self
@@ -34,11 +37,13 @@ impl HttpRequest {
 }
 
 impl HttpResponse {
+  #[inline]
   /// Returns true if the `status` matches the argument.
   pub const fn has_status(&self, status: i32) -> bool {
     self.status == status
   }
 
+  #[inline]
   /// Returns true if the [`HttpResponse`] contains the given header.
   pub fn has_header(&self, name: &str, value: &str) -> bool {
     self
@@ -53,109 +58,127 @@ impl HttpResponse {
 impl Code {
   /// Checks if the code is `Ok`.
   #[must_use]
+  #[inline]
   pub const fn is_200_ok(&self) -> bool {
     matches!(self, Self::Ok)
   }
 
   /// Checks if the code is `Cancelled`.
   #[must_use]
+  #[inline]
   pub const fn is_cancelled(&self) -> bool {
     matches!(self, Self::Cancelled)
   }
 
   /// Checks if the code is `Unknown`.
   #[must_use]
+  #[inline]
   pub const fn is_unknown(&self) -> bool {
     matches!(self, Self::Unknown)
   }
 
   /// Checks if the code is `InvalidArgument`.
   #[must_use]
+  #[inline]
   pub const fn is_invalid_argument(&self) -> bool {
     matches!(self, Self::InvalidArgument)
   }
 
   /// Checks if the code is `DeadlineExceeded`.
   #[must_use]
+  #[inline]
   pub const fn is_deadline_exceeded(&self) -> bool {
     matches!(self, Self::DeadlineExceeded)
   }
 
   /// Checks if the code is `NotFound`.
   #[must_use]
+  #[inline]
   pub const fn is_not_found(&self) -> bool {
     matches!(self, Self::NotFound)
   }
 
   /// Checks if the code is `AlreadyExists`.
   #[must_use]
+  #[inline]
   pub const fn is_already_exists(&self) -> bool {
     matches!(self, Self::AlreadyExists)
   }
 
   /// Checks if the code is `PermissionDenied`.
   #[must_use]
+  #[inline]
   pub const fn is_permission_denied(&self) -> bool {
     matches!(self, Self::PermissionDenied)
   }
 
   /// Checks if the code is `Unauthenticated`.
   #[must_use]
+  #[inline]
   pub const fn is_unauthenticated(&self) -> bool {
     matches!(self, Self::Unauthenticated)
   }
 
   /// Checks if the code is `ResourceExhausted`.
   #[must_use]
+  #[inline]
   pub const fn is_resource_exhausted(&self) -> bool {
     matches!(self, Self::ResourceExhausted)
   }
 
   /// Checks if the code is `FailedPrecondition`.
   #[must_use]
+  #[inline]
   pub const fn is_failed_precondition(&self) -> bool {
     matches!(self, Self::FailedPrecondition)
   }
 
   /// Checks if the code is `Aborted`.
   #[must_use]
+  #[inline]
   pub const fn is_aborted(&self) -> bool {
     matches!(self, Self::Aborted)
   }
 
   /// Checks if the code is `OutOfRange`.
   #[must_use]
+  #[inline]
   pub const fn is_out_of_range(&self) -> bool {
     matches!(self, Self::OutOfRange)
   }
 
   /// Checks if the code is `Unimplemented`.
   #[must_use]
+  #[inline]
   pub const fn is_unimplemented(&self) -> bool {
     matches!(self, Self::Unimplemented)
   }
 
   /// Checks if the code is `Internal`.
   #[must_use]
+  #[inline]
   pub const fn is_internal(&self) -> bool {
     matches!(self, Self::Internal)
   }
 
   /// Checks if the code is `Unavailable`.
   #[must_use]
+  #[inline]
   pub const fn is_unavailable(&self) -> bool {
     matches!(self, Self::Unavailable)
   }
 
   /// Checks if the code is `DataLoss`.
   #[must_use]
+  #[inline]
   pub const fn is_data_loss(&self) -> bool {
     matches!(self, Self::DataLoss)
   }
 
   /// Returns the name of the code variant in title case.
   #[must_use]
-  pub const fn as_title_case(&self) -> &str {
+  #[inline]
+  pub const fn as_title_case(&self) -> &'static str {
     match self {
       Self::Ok => "Ok",
       Self::Cancelled => "Cancelled",
@@ -179,6 +202,7 @@ impl Code {
 
   /// Returns the corresponding HTTP status code mapping.
   #[must_use]
+  #[inline]
   pub const fn to_http_status(&self) -> u16 {
     match self {
       Self::Ok => 200,

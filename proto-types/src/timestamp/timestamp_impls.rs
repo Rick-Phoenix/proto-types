@@ -26,6 +26,7 @@ mod chrono {
     }
 
     /// Converts this [`Timestamp`] instance to chrono::[`DateTime`](::chrono::DateTime) with [`chrono::Utc`].
+    #[inline]
     pub fn as_datetime_utc(&self) -> Result<chrono::DateTime<Utc>, TimestampError> {
       (*self).try_into()
     }
@@ -45,6 +46,7 @@ impl Timestamp {
 impl Timestamp {
   /// Returns the current timestamp.
   #[must_use]
+  #[inline]
   pub fn now() -> Self {
     ::chrono::Utc::now().into()
   }
@@ -54,6 +56,7 @@ impl Timestamp {
 impl Timestamp {
   /// Returns the current timestamp.
   #[must_use]
+  #[inline]
   pub fn now() -> Self {
     std::time::SystemTime::now().into()
   }
@@ -63,6 +66,7 @@ impl Timestamp {
 impl Timestamp {
   /// Checks whether the Timestamp instance is within the indicated range (positive or negative) from now.
   #[must_use]
+  #[inline]
   pub fn is_within_range_from_now(&self, range: Duration) -> bool {
     let now = Self::now();
 
@@ -71,6 +75,7 @@ impl Timestamp {
 
   /// Checks whether the Timestamp instance is within the indicated range in the future.
   #[must_use]
+  #[inline]
   pub fn is_within_future_range(&self, range: Duration) -> bool {
     let now = Self::now();
     let max = now + range;
@@ -80,6 +85,7 @@ impl Timestamp {
 
   /// Checks whether the Timestamp instance is within the indicated range in the past.
   #[must_use]
+  #[inline]
   pub fn is_within_past_range(&self, range: Duration) -> bool {
     let now = Self::now();
     let min = now - range;
@@ -89,12 +95,14 @@ impl Timestamp {
 
   /// Returns `true` if the timestamp is in the future.
   #[must_use]
+  #[inline]
   pub fn is_future(&self) -> bool {
     *self > Self::now()
   }
 
   /// Returns `true` if the timestamp is in the past.
   #[must_use]
+  #[inline]
   pub fn is_past(&self) -> bool {
     *self < Self::now()
   }

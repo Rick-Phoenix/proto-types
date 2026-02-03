@@ -27,6 +27,7 @@ fn validate_interval(
 
 impl Interval {
   /// Creates a new [`Interval`] instance, checking that `end_time` is not before `start_time`.
+  #[inline]
   pub fn new(
     start_time: Option<Timestamp>,
     end_time: Option<Timestamp>,

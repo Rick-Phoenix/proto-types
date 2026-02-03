@@ -4,6 +4,7 @@ use crate::{Duration, constants::NANOS_PER_SECOND};
 
 impl Add for Duration {
   type Output = Self;
+  #[inline]
   fn add(self, rhs: Self) -> Self::Output {
     self
       .checked_add(&rhs)
@@ -14,6 +15,7 @@ impl Add for Duration {
 impl Sub for Duration {
   type Output = Self;
 
+  #[inline]
   fn sub(self, other: Self) -> Self {
     self
       .checked_sub(&other)
@@ -24,6 +26,7 @@ impl Sub for Duration {
 impl Mul<i64> for Duration {
   type Output = Self;
 
+  #[inline]
   fn mul(self, rhs: i64) -> Self {
     self
       .checked_mul(rhs)
@@ -34,6 +37,7 @@ impl Mul<i64> for Duration {
 impl Mul<i32> for Duration {
   type Output = Self;
 
+  #[inline]
   fn mul(self, rhs: i32) -> Self {
     self
       .checked_mul(i64::from(rhs)) // Simply cast to i64 and use the i64 implementation
@@ -44,6 +48,7 @@ impl Mul<i32> for Duration {
 impl Div<i64> for Duration {
   type Output = Self;
 
+  #[inline]
   fn div(self, rhs: i64) -> Self {
     self
       .checked_div(rhs)
@@ -54,6 +59,7 @@ impl Div<i64> for Duration {
 impl Div<i32> for Duration {
   type Output = Self;
 
+  #[inline]
   fn div(self, rhs: i32) -> Self {
     self
       .checked_div(i64::from(rhs))
@@ -70,6 +76,7 @@ impl Duration {
 
   /// Automatically handles normalization and overflow checking for i64 seconds.
   #[must_use]
+  #[inline]
   pub fn from_total_nanos(total: i128) -> Option<Self> {
     let factor = i128::from(NANOS_PER_SECOND);
 
@@ -88,6 +95,7 @@ impl Duration {
 
   /// Multiplies the Duration by an i64 scalar, returning `Some(Duration)` or `None` on overflow.
   #[must_use]
+  #[inline]
   pub fn checked_mul(&self, rhs: i64) -> Option<Self> {
     let total = self.total_nanos().checked_mul(i128::from(rhs))?;
     Self::from_total_nanos(total)
@@ -95,6 +103,7 @@ impl Duration {
 
   /// Adds another Duration to this one, returning `Some(Duration)` or `None` on overflow.
   #[must_use]
+  #[inline]
   pub fn checked_add(&self, other: &Self) -> Option<Self> {
     let total = self
       .total_nanos()
@@ -104,6 +113,7 @@ impl Duration {
 
   /// Subtracts another Duration from this one, returning `Some(Duration)` or `None` on overflow.
   #[must_use]
+  #[inline]
   pub fn checked_sub(&self, other: &Self) -> Option<Self> {
     let total = self
       .total_nanos()
@@ -113,6 +123,7 @@ impl Duration {
 
   /// Divides the Duration by an i64 scalar, returning `Some(Duration)` or `None` on overflow.
   #[must_use]
+  #[inline]
   pub fn checked_div(&self, rhs: i64) -> Option<Self> {
     if rhs == 0 {
       return None;
