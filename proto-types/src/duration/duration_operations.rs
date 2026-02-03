@@ -5,30 +5,14 @@ use core::time::Duration as StdDuration;
 impl Add<StdDuration> for Duration {
   type Output = Self;
 
+  #[inline]
   fn add(self, rhs: StdDuration) -> Self::Output {
-    let total_nanos = i64::from(self.nanos) + i64::from(rhs.subsec_nanos());
+    let rhs_s = i64::try_from(rhs.as_secs()).expect("overflow in duration addition");
+    let rhs_n = i64::from(rhs.subsec_nanos());
 
-    let (extra_secs, final_nanos) = if total_nanos >= 1_000_000_000 {
-      #[allow(clippy::cast_possible_truncation)]
-      (1, (total_nanos - 1_000_000_000) as i32)
-    } else {
-      #[allow(clippy::cast_possible_truncation)]
-      (0, total_nanos as i32)
-    };
-
-    let rhs_secs = i64::try_from(rhs.as_secs()).expect("overflow when adding duration");
-
-    let final_secs = self
-      .seconds
-      .checked_add(rhs_secs)
-      .expect("overflow when adding duration")
-      .checked_add(extra_secs)
-      .expect("overflow when adding duration");
-
-    Self {
-      seconds: final_secs,
-      nanos: final_nanos,
-    }
+    self
+      .checked_add_raw(rhs_s, rhs_n)
+      .expect("overflow in duration addition")
   }
 }
 
@@ -38,7 +22,7 @@ impl Add for Duration {
   fn add(self, rhs: Self) -> Self::Output {
     self
       .checked_add(&rhs)
-      .expect("Duration addition overflowed")
+      .expect("overflow in duration addition")
   }
 }
 
@@ -49,37 +33,21 @@ impl Sub for Duration {
   fn sub(self, other: Self) -> Self {
     self
       .checked_sub(&other)
-      .expect("Duration subtraction overflowed")
+      .expect("overflow in duration subtraction")
   }
 }
 
 impl Sub<StdDuration> for Duration {
   type Output = Self;
 
+  #[inline]
   fn sub(self, rhs: StdDuration) -> Self::Output {
-    let total_nanos = i64::from(self.nanos) - i64::from(rhs.subsec_nanos());
+    let rhs_s = i64::try_from(rhs.as_secs()).expect("overflow in duration subtraction");
+    let rhs_n = i64::from(rhs.subsec_nanos());
 
-    let (extra_secs, final_nanos) = if total_nanos <= -1_000_000_000 {
-      #[allow(clippy::cast_possible_truncation)]
-      (-1, (total_nanos + 1_000_000_000) as i32)
-    } else {
-      #[allow(clippy::cast_possible_truncation)]
-      (0, total_nanos as i32)
-    };
-
-    let rhs_secs = i64::try_from(rhs.as_secs()).expect("overflow when subtracting duration");
-
-    let final_secs = self
-      .seconds
-      .checked_sub(rhs_secs)
-      .expect("overflow when subtracting duration")
-      .checked_add(extra_secs)
-      .expect("overflow when subtracting duration");
-
-    Self {
-      seconds: final_secs,
-      nanos: final_nanos,
-    }
+    self
+      .checked_sub_raw(rhs_s, rhs_n)
+      .expect("overflow in duration subtraction")
   }
 }
 
@@ -87,28 +55,11 @@ impl Sub<StdDuration> for Duration {
 impl Add<chrono::TimeDelta> for Duration {
   type Output = Self;
 
+  #[inline]
   fn add(self, rhs: chrono::TimeDelta) -> Self::Output {
-    let total_nanos = i64::from(self.nanos) + i64::from(rhs.subsec_nanos());
-
-    let (extra_secs, final_nanos) = if total_nanos >= 1_000_000_000 {
-      #[allow(clippy::cast_possible_truncation)]
-      (1, (total_nanos - 1_000_000_000) as i32)
-    } else {
-      #[allow(clippy::cast_possible_truncation)]
-      (0, total_nanos as i32)
-    };
-
-    let final_secs = self
-      .seconds
-      .checked_add(rhs.num_seconds())
-      .expect("overflow when adding duration")
-      .checked_add(extra_secs)
-      .expect("overflow when adding duration");
-
-    Self {
-      seconds: final_secs,
-      nanos: final_nanos,
-    }
+    self
+      .checked_add_raw(rhs.num_seconds(), i64::from(rhs.subsec_nanos()))
+      .expect("overflow in duration addition")
   }
 }
 
@@ -116,28 +67,11 @@ impl Add<chrono::TimeDelta> for Duration {
 impl Sub<chrono::TimeDelta> for Duration {
   type Output = Self;
 
+  #[inline]
   fn sub(self, rhs: chrono::TimeDelta) -> Self::Output {
-    let total_nanos = i64::from(self.nanos) - i64::from(rhs.subsec_nanos());
-
-    let (extra_secs, final_nanos) = if total_nanos <= -1_000_000_000 {
-      #[allow(clippy::cast_possible_truncation)]
-      (-1, (total_nanos + 1_000_000_000) as i32)
-    } else {
-      #[allow(clippy::cast_possible_truncation)]
-      (0, total_nanos as i32)
-    };
-
-    let final_secs = self
-      .seconds
-      .checked_sub(rhs.num_seconds())
-      .expect("overflow when subtracting duration")
-      .checked_add(extra_secs)
-      .expect("overflow when subtracting duration");
-
-    Self {
-      seconds: final_secs,
-      nanos: final_nanos,
-    }
+    self
+      .checked_sub_raw(rhs.num_seconds(), i64::from(rhs.subsec_nanos()))
+      .expect("overflow in duration subtraction")
   }
 }
 
@@ -186,13 +120,73 @@ impl Div<i32> for Duration {
 }
 
 impl Duration {
+  const NANOS_PER_SEC: i64 = 1_000_000_000;
+
+  fn align_signs(mut s: i64, mut n: i32) -> Option<Self> {
+    if s > 0 && n < 0 {
+      s = s.checked_sub(1)?;
+      n += 1_000_000_000;
+    } else if s < 0 && n > 0 {
+      s = s.checked_add(1)?;
+      n -= 1_000_000_000;
+    }
+    Some(Self {
+      seconds: s,
+      nanos: n,
+    })
+  }
+
+  fn checked_add_raw(&self, rhs_s: i64, rhs_n: i64) -> Option<Self> {
+    let mut s = self.seconds.checked_add(rhs_s)?;
+    let mut n_total = i64::from(self.nanos) + rhs_n;
+
+    if n_total >= 1_000_000_000 {
+      s = s.checked_add(1)?;
+      n_total -= 1_000_000_000;
+    } else if n_total <= -1_000_000_000 {
+      s = s.checked_sub(1)?;
+      n_total += 1_000_000_000;
+    }
+
+    if s > 0 && n_total < 0 {
+      s = s.checked_sub(1)?;
+      n_total += 1_000_000_000;
+    } else if s < 0 && n_total > 0 {
+      s = s.checked_add(1)?;
+      n_total -= 1_000_000_000;
+    }
+
+    Some(Self {
+      seconds: s,
+      #[allow(clippy::cast_possible_truncation)]
+      nanos: n_total as i32,
+    })
+  }
+
+  fn checked_sub_raw(&self, rhs_s: i64, rhs_n: i64) -> Option<Self> {
+    let mut s = self.seconds.checked_sub(rhs_s)?;
+    let mut n_total = i64::from(self.nanos) - rhs_n;
+
+    if n_total >= Self::NANOS_PER_SEC {
+      s = s.checked_add(1)?;
+      n_total -= Self::NANOS_PER_SEC;
+    } else if n_total <= -Self::NANOS_PER_SEC {
+      s = s.checked_sub(1)?;
+      n_total += Self::NANOS_PER_SEC;
+    }
+
+    #[allow(clippy::cast_possible_truncation)]
+    Self::align_signs(s, n_total as i32)
+  }
+
+  /// Returns the total nanoseconds for this instance.
   #[inline]
   #[must_use]
   pub const fn total_nanos(&self) -> i128 {
     (self.seconds as i128) * (crate::constants::NANOS_PER_SECOND as i128) + (self.nanos as i128)
   }
 
-  /// Automatically handles normalization and overflow checking for i64 seconds.
+  /// Creates a new normalized instance from a given amount of nanoseconds.
   #[must_use]
   #[inline]
   pub fn from_total_nanos(total: i128) -> Option<Self> {
@@ -223,20 +217,14 @@ impl Duration {
   #[must_use]
   #[inline]
   pub fn checked_add(&self, other: &Self) -> Option<Self> {
-    let total = self
-      .total_nanos()
-      .checked_add(other.total_nanos())?;
-    Self::from_total_nanos(total)
+    self.checked_add_raw(other.seconds, other.nanos.into())
   }
 
   /// Subtracts another Duration from this one, returning `Some(Duration)` or `None` on overflow.
   #[must_use]
   #[inline]
   pub fn checked_sub(&self, other: &Self) -> Option<Self> {
-    let total = self
-      .total_nanos()
-      .checked_sub(other.total_nanos())?;
-    Self::from_total_nanos(total)
+    self.checked_sub_raw(other.seconds, other.nanos.into())
   }
 
   /// Divides the Duration by an i64 scalar, returning `Some(Duration)` or `None` on overflow.
@@ -256,36 +244,70 @@ mod tests {
   use super::*;
   use core::cmp::Ordering;
 
+  macro_rules! get_duration {
+    (duration, $secs:literal, $nanos:literal) => {
+      Duration::new($secs, $nanos)
+    };
+
+    (std, $secs:literal, $nanos:literal) => {
+      StdDuration::new($secs, $nanos)
+    };
+
+    (chrono, $secs:literal, $nanos:literal) => {
+      TimeDelta::new($secs, $nanos).unwrap()
+    };
+  }
+
+  macro_rules! test_ops {
+    ($duration:ident) => {
+      #[test]
+      fn test_ops_chrono() {
+        // 1. Add causing carry
+        let d1 = dur(1, 900_000_000);
+        let d2 = get_duration!($duration, 0, 200_000_000);
+        let sum = d1 + d2;
+        assert_eq!(sum.seconds, 2);
+        assert_eq!(sum.nanos, 100_000_000);
+
+        // 2. Sub causing borrow
+        let d1 = dur(2, 100_000_000);
+        let d2 = get_duration!($duration, 0, 200_000_000);
+        let diff = d1 - d2;
+        assert_eq!(diff.seconds, 1);
+        assert_eq!(diff.nanos, 900_000_000);
+
+        // 3. Sub causing negative result
+        let d1 = dur(1, 0);
+        let d2 = get_duration!($duration, 2, 0);
+        let diff = d1 - d2;
+        // -1s
+        assert_eq!(diff.seconds, -1);
+        assert_eq!(diff.nanos, 0);
+      }
+    };
+  }
+
+  test_ops!(duration);
+
+  mod std_test {
+    use super::*;
+
+    test_ops!(std);
+  }
+
+  #[cfg(feature = "chrono")]
+  mod chrono_test {
+    use super::*;
+    use chrono::TimeDelta;
+
+    test_ops!(chrono);
+  }
+
   fn dur(s: i64, n: i32) -> Duration {
     Duration {
       seconds: s,
       nanos: n,
     }
-  }
-
-  #[test]
-  fn test_arithmetic_normalization_via_math() {
-    // 1. Add causing carry
-    let d1 = dur(1, 900_000_000);
-    let d2 = dur(0, 200_000_000);
-    let sum = d1 + d2;
-    assert_eq!(sum.seconds, 2);
-    assert_eq!(sum.nanos, 100_000_000);
-
-    // 2. Sub causing borrow
-    let d1 = dur(2, 100_000_000);
-    let d2 = dur(0, 200_000_000);
-    let diff = d1 - d2;
-    assert_eq!(diff.seconds, 1);
-    assert_eq!(diff.nanos, 900_000_000);
-
-    // 3. Sub causing negative result
-    let d1 = dur(1, 0);
-    let d2 = dur(2, 0);
-    let diff = d1 - d2;
-    // -1s
-    assert_eq!(diff.seconds, -1);
-    assert_eq!(diff.nanos, 0);
   }
 
   #[test]
