@@ -18,16 +18,14 @@ pub enum ColorError {
 }
 
 fn validate_color(red: f32, green: f32, blue: f32, alpha: Option<f32>) -> Result<(), ColorError> {
-  let is_component_valid = |c: f32| (0.0..=1.0).contains(&c);
-
-  if !is_component_valid(red) {
+  if !(0.0..=1.0).contains(&red) {
     Err(ColorError::InvalidRed)
-  } else if !is_component_valid(green) {
+  } else if !(0.0..=1.0).contains(&green) {
     Err(ColorError::InvalidGreen)
-  } else if !is_component_valid(blue) {
+  } else if !(0.0..=1.0).contains(&blue) {
     Err(ColorError::InvalidBlue)
   } else if let Some(a) = alpha
-    && !is_component_valid(a)
+    && !(0.0..=1.0).contains(&a)
   {
     Err(ColorError::InvalidAlpha)
   } else {
@@ -63,7 +61,6 @@ impl Color {
   #[must_use]
   #[inline]
   /// Checks if the values are valid (i.e. they all range from 0 to 1.0).
-  /// Redundant in case the constructor was used.
   pub fn is_valid(&self) -> bool {
     self.validate().is_ok()
   }
