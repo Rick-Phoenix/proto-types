@@ -1,5 +1,6 @@
 use super::*;
 
+/// Data for the `cel` violation.
 pub const CEL_VIOLATION: ViolationData = ViolationData {
   name: "cel",
   elements: &[ConstPathElement {
@@ -9,6 +10,7 @@ pub const CEL_VIOLATION: ViolationData = ViolationData {
   }],
 };
 
+/// Data for the `required` violation.
 pub const REQUIRED_VIOLATION: ViolationData = ViolationData {
   name: "required",
   elements: &[ConstPathElement {

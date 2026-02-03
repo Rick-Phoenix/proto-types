@@ -1,6 +1,7 @@
 use crate::{Vec, protovalidate::*};
 use paste::paste;
 
+/// All types of violation from protovalidate rules.
 #[non_exhaustive]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -33,6 +34,7 @@ pub enum ViolationKind {
 }
 
 impl ViolationKind {
+  /// Returns the [`ViolationData`] for each violation.
   #[must_use]
   pub const fn data(&self) -> ViolationData {
     match self {
@@ -69,6 +71,8 @@ macro_rules! violation_data_method {
   (with_required, $target:ident, $($names:ident),*) => {
     paste! {
       impl [< $target Violation >] {
+				#[doc = "Returns the [`ViolationData`] for the specific violation."]
+				#[inline]
         #[must_use]
         pub const fn data(&self) -> ViolationData {
           match self {
@@ -85,6 +89,8 @@ macro_rules! violation_data_method {
   ($target:ident, $($names:ident),*) => {
     paste! {
       impl [< $target Violation >] {
+				#[doc = "Returns the [`ViolationData`] for the specific violation."]
+				#[inline]
         #[must_use]
         pub const fn data(&self) -> ViolationData {
           match self {
@@ -104,6 +110,7 @@ macro_rules! violations_enum {
       #[non_exhaustive]
       #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
       #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+			#[doc = "All types of violations for `" $target:snake "` fields."]
       pub enum [< $target Violation >] {
         Required,
         $(
@@ -126,6 +133,7 @@ macro_rules! violations_enum {
       #[non_exhaustive]
       #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
       #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+			#[doc = "All types of violations for `" $target:snake "` fields."]
       pub enum [< $target Violation >] {
         $(
           [< $names:camel >]
@@ -146,6 +154,7 @@ macro_rules! violations_enum {
 macro_rules! violation_data {
   ( $typ:ident, $num:literal, $name:ident, $viol_num:literal, $field_type:ident ) => {
     paste::paste! {
+      #[doc = "The data for the `" $typ "." $name "` violation."]
       pub const [< $typ:upper _ $name:upper _VIOLATION >]: ViolationData = ViolationData {
         name: concat!(stringify!($typ),".", stringify!($name)),
         elements: &[
@@ -198,6 +207,7 @@ pub use bytes_violations::*;
 
 use super::*;
 
+/// Struct that can map to a [`FieldPathElement`] with const-compatible values.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ConstPathElement {
   pub name: &'static str,
@@ -206,6 +216,7 @@ pub struct ConstPathElement {
 }
 
 impl ConstPathElement {
+  /// Converts to a [`FieldPathElement`].
   #[must_use]
   pub fn as_path_element(&self) -> FieldPathElement {
     FieldPathElement {
@@ -217,6 +228,7 @@ impl ConstPathElement {
   }
 }
 
+/// The name and path elements associated with a given violation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ViolationData {
   pub name: &'static str,
@@ -224,6 +236,7 @@ pub struct ViolationData {
 }
 
 impl ViolationData {
+  #[inline]
   #[must_use]
   pub fn elements_iter(&self) -> impl ExactSizeIterator<Item = FieldPathElement> {
     self.elements.iter().map(|e| e.as_path_element())
