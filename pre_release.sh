@@ -13,8 +13,6 @@ if [[ -z "$VERSION" ]]; then
 	exit 1
 fi
 
-git cliff
-
 if [[ "$EXEC_RELEASE" = true ]]; then
 	echo "Starting pre-release process for version ${VERSION}..."
 
