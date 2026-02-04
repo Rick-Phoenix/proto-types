@@ -1,10 +1,14 @@
-# 🧩 Implementations for common protobuf types
+<h1>
 
-This crate provides implementations for several well known protobuf types, such as those from `google.protobuf`, `google.rpc` and `google.type`, plus some implementations for `buf.validate` which are used by [protocheck](https://github.com/Rick-Phoenix/protocheck). 
+Proto-types &emsp; ![Rust](https://img.shields.io/badge/Rust-000000?style=flat&logo=rust&logoColor=white) ![Crates.io Version](https://img.shields.io/crates/v/proto-types) ![License](https://img.shields.io/github/license/Rick-Phoenix/protify) [![Sponsor](https://img.shields.io/badge/GitHub%20Sponsors-30363D?&logo=GitHub-Sponsors&logoColor=EA4AAA)](https://github.com/sponsors/Rick-Phoenix)
+
+</h1>
+
+This crate provides implementations for several well known protobuf types, such as those from `google.protobuf`, `google.rpc` and `google.type`, plus some implementations for `buf.validate` which are used by [protocheck](https://github.com/Rick-Phoenix/protocheck).
 
 You can use feature flags to selectively include the implementations that you're interested in.
 
-# 🗒️ List of implementations
+## 🗒️ List of implementations
 
 Each struct/enum includes the default impls from [prost](https://crates.io/crates/prost) such as Clone, Debug and so on.
 
@@ -18,14 +22,14 @@ In addition, the types from the google packages come with the implementations li
 
 All of the structs that have fallible methods also come with their own custom error enum.
 
-## 📑 google.protobuf
+### 📑 google.protobuf
 
 - [`Duration`]
     - Ord, PartialOrd
     - Display
     - Add, Sub (between durations)
     - Mul, Div (with integers)
-    - Conversions from [`Interval`] and to/from [`chrono::TimeDelta`] 
+    - Conversions from [`Interval`] and to/from [`chrono::TimeDelta`]
     - Helpers for the extraction of units (seconds, minutes, etc) and formatting
 - [`Timestamp`]
     - Ord, PartialOrd
@@ -38,7 +42,7 @@ All of the structs that have fallible methods also come with their own custom er
 - [`Empty`]
 - [`Any`]
 
-## 📚 google.type
+### 📚 google.type
 
 All of these can be included with the `all_common` flag, or selected individually with their respective flag.
 
@@ -47,12 +51,12 @@ All of these can be included with the `all_common` flag, or selected individuall
     - Display
     - Ord, PartialOrd
     - Conversions to/from [`chrono::NaiveTime`]
-- [`Date`] 
+- [`Date`]
     - Constructor with validation check
     - Display
     - PartialOrd
     - Conversions to/from [`chrono::NaiveDate`]
-- [`DateTime`] 
+- [`DateTime`]
     - Constructor with validation check
     - Display
     - PartialOrd
@@ -69,7 +73,7 @@ All of these can be included with the `all_common` flag, or selected individuall
     - Formatting helper
     - Checked operations
     - (Lossy) conversions to/from f64
-- [`Color`] 
+- [`Color`]
     - Constructor with validation check
     - Conversions to/from [`palette::Srgba`] (with the `palette` feature)
 - [`Fraction`]
@@ -95,11 +99,11 @@ All of these can be included with the `all_common` flag, or selected individuall
 - [`Month`]
 - [`DayOfWeek`]
 
-## 💻 google.rpc
+### 💻 google.rpc
 
 Available by default:
 
-- [`Status`] 
+- [`Status`]
 - [`Code`]
 
 Enabled with the `rpc` flag:
@@ -122,7 +126,7 @@ Enabled with the `rpc` flag:
 - [`HttpResponse`]
 - [`HttpHeader`]
 
-# 📜 License
+## 📜 License
 
 This repository is licensed under the MPL-2.0 license, unless otherwise indicated.
 The file `CREDITS.md` contains the details of the external code (and relevant licenses) used in this project.
