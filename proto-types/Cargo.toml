@@ -17,6 +17,7 @@ workspace = true
 
 [package.metadata.release]
 tag = true
+tag-name = "v{{version}}"
 
 [package.metadata.docs.rs]
 all-features = true
