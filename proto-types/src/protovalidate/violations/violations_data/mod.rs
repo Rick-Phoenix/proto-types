@@ -6,65 +6,65 @@ use paste::paste;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum ViolationKind {
-  Required,
-  RequiredOneof,
-  Cel,
-  Float(FloatViolation),
-  Double(DoubleViolation),
-  Int32(Int32Violation),
-  Int64(Int64Violation),
-  Sint32(Sint32Violation),
-  Sint64(Sint64Violation),
-  Sfixed32(Sfixed32Violation),
-  Sfixed64(Sfixed64Violation),
-  Uint32(Uint32Violation),
-  Uint64(Uint64Violation),
-  Fixed32(Fixed32Violation),
-  Fixed64(Fixed64Violation),
-  String(StringViolation),
-  Bool(BoolViolation),
-  Bytes(BytesViolation),
-  Enum(EnumViolation),
-  Repeated(RepeatedViolation),
-  Map(MapViolation),
-  Any(AnyViolation),
-  Duration(DurationViolation),
-  FieldMask(FieldMaskViolation),
-  Timestamp(TimestampViolation),
+	Required,
+	RequiredOneof,
+	Cel,
+	Float(FloatViolation),
+	Double(DoubleViolation),
+	Int32(Int32Violation),
+	Int64(Int64Violation),
+	Sint32(Sint32Violation),
+	Sint64(Sint64Violation),
+	Sfixed32(Sfixed32Violation),
+	Sfixed64(Sfixed64Violation),
+	Uint32(Uint32Violation),
+	Uint64(Uint64Violation),
+	Fixed32(Fixed32Violation),
+	Fixed64(Fixed64Violation),
+	String(StringViolation),
+	Bool(BoolViolation),
+	Bytes(BytesViolation),
+	Enum(EnumViolation),
+	Repeated(RepeatedViolation),
+	Map(MapViolation),
+	Any(AnyViolation),
+	Duration(DurationViolation),
+	FieldMask(FieldMaskViolation),
+	Timestamp(TimestampViolation),
 }
 
 impl ViolationKind {
-  /// Returns the [`ViolationData`] for each violation.
-  #[must_use]
-  pub const fn data(&self) -> ViolationData {
-    match self {
-      Self::Cel => CEL_VIOLATION,
-      Self::Required => REQUIRED_VIOLATION,
-      Self::RequiredOneof => ONEOF_REQUIRED_VIOLATION,
-      Self::Float(v) => v.data(),
-      Self::Double(v) => v.data(),
-      Self::Int32(v) => v.data(),
-      Self::Int64(v) => v.data(),
-      Self::Sint32(v) => v.data(),
-      Self::Sint64(v) => v.data(),
-      Self::Sfixed32(v) => v.data(),
-      Self::Sfixed64(v) => v.data(),
-      Self::Uint32(v) => v.data(),
-      Self::Uint64(v) => v.data(),
-      Self::Fixed32(v) => v.data(),
-      Self::Fixed64(v) => v.data(),
-      Self::String(v) => v.data(),
-      Self::Bytes(v) => v.data(),
-      Self::Enum(v) => v.data(),
-      Self::Repeated(v) => v.data(),
-      Self::Map(v) => v.data(),
-      Self::Any(v) => v.data(),
-      Self::Duration(v) => v.data(),
-      Self::FieldMask(v) => v.data(),
-      Self::Timestamp(v) => v.data(),
-      Self::Bool(v) => v.data(),
-    }
-  }
+	/// Returns the [`ViolationData`] for each violation.
+	#[must_use]
+	pub const fn data(&self) -> ViolationData {
+		match self {
+			Self::Cel => CEL_VIOLATION,
+			Self::Required => REQUIRED_VIOLATION,
+			Self::RequiredOneof => ONEOF_REQUIRED_VIOLATION,
+			Self::Float(v) => v.data(),
+			Self::Double(v) => v.data(),
+			Self::Int32(v) => v.data(),
+			Self::Int64(v) => v.data(),
+			Self::Sint32(v) => v.data(),
+			Self::Sint64(v) => v.data(),
+			Self::Sfixed32(v) => v.data(),
+			Self::Sfixed64(v) => v.data(),
+			Self::Uint32(v) => v.data(),
+			Self::Uint64(v) => v.data(),
+			Self::Fixed32(v) => v.data(),
+			Self::Fixed64(v) => v.data(),
+			Self::String(v) => v.data(),
+			Self::Bytes(v) => v.data(),
+			Self::Enum(v) => v.data(),
+			Self::Repeated(v) => v.data(),
+			Self::Map(v) => v.data(),
+			Self::Any(v) => v.data(),
+			Self::Duration(v) => v.data(),
+			Self::FieldMask(v) => v.data(),
+			Self::Timestamp(v) => v.data(),
+			Self::Bool(v) => v.data(),
+		}
+	}
 }
 
 macro_rules! violation_data_method {
@@ -152,26 +152,26 @@ macro_rules! violations_enum {
 }
 
 macro_rules! violation_data {
-  ( $typ:ident, $num:literal, $name:ident, $viol_num:literal, $field_type:ident ) => {
-    paste::paste! {
-      #[doc = "The data for the `" $typ "." $name "` violation."]
-      pub const [< $typ:upper _ $name:upper _VIOLATION >]: ViolationData = ViolationData {
-        name: concat!(stringify!($typ),".", stringify!($name)),
-        elements: &[
-          ConstPathElement {
-            name: stringify!($typ),
-            number: $num,
-            field_type: Type::Message,
-          },
-          ConstPathElement {
-            name: stringify!($name),
-            number: $viol_num,
-            field_type: Type::$field_type,
-          },
-        ]
-      };
-    }
-  };
+	( $typ:ident, $num:literal, $name:ident, $viol_num:literal, $field_type:ident ) => {
+		paste::paste! {
+		  #[doc = "The data for the `" $typ "." $name "` violation."]
+		  pub const [< $typ:upper _ $name:upper _VIOLATION >]: ViolationData = ViolationData {
+			name: concat!(stringify!($typ),".", stringify!($name)),
+			elements: &[
+			  ConstPathElement {
+				name: stringify!($typ),
+				number: $num,
+				field_type: Type::Message,
+			  },
+			  ConstPathElement {
+				name: stringify!($name),
+				number: $viol_num,
+				field_type: Type::$field_type,
+			  },
+			]
+		  };
+		}
+	};
 }
 
 violation_data!(bool, 13, const, 1, Bool);
@@ -210,40 +210,40 @@ use super::*;
 /// Struct that can map to a [`FieldPathElement`] with const-compatible values.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ConstPathElement {
-  pub name: &'static str,
-  pub number: i32,
-  pub field_type: Type,
+	pub name: &'static str,
+	pub number: i32,
+	pub field_type: Type,
 }
 
 impl ConstPathElement {
-  /// Converts to a [`FieldPathElement`].
-  #[must_use]
-  pub fn as_path_element(&self) -> FieldPathElement {
-    FieldPathElement {
-      field_name: Some(self.name.to_string()),
-      field_number: Some(self.number),
-      field_type: Some(self.field_type as i32),
-      ..Default::default()
-    }
-  }
+	/// Converts to a [`FieldPathElement`].
+	#[must_use]
+	pub fn as_path_element(&self) -> FieldPathElement {
+		FieldPathElement {
+			field_name: Some(self.name.to_string()),
+			field_number: Some(self.number),
+			field_type: Some(self.field_type as i32),
+			..Default::default()
+		}
+	}
 }
 
 /// The name and path elements associated with a given violation.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ViolationData {
-  pub name: &'static str,
-  pub elements: &'static [ConstPathElement],
+	pub name: &'static str,
+	pub elements: &'static [ConstPathElement],
 }
 
 impl ViolationData {
-  #[inline]
-  #[must_use]
-  pub fn elements_iter(&self) -> impl ExactSizeIterator<Item = FieldPathElement> {
-    self.elements.iter().map(|e| e.as_path_element())
-  }
+	#[inline]
+	#[must_use]
+	pub fn elements_iter(&self) -> impl ExactSizeIterator<Item = FieldPathElement> {
+		self.elements.iter().map(|e| e.as_path_element())
+	}
 
-  #[must_use]
-  pub fn to_elements_vec(&self) -> Vec<FieldPathElement> {
-    self.elements_iter().collect()
-  }
+	#[must_use]
+	pub fn to_elements_vec(&self) -> Vec<FieldPathElement> {
+		self.elements_iter().collect()
+	}
 }

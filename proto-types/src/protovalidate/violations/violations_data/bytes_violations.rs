@@ -1,28 +1,28 @@
 use super::*;
 
 violations_enum!(
-  with_required,
-  Bytes,
-  const,
-  len,
-  min_len,
-  max_len,
-  pattern,
-  prefix,
-  suffix,
-  contains,
-  in,
-  not_in,
-  ip,
-  ipv4,
-  ipv6,
-  uuid
+	with_required,
+	Bytes,
+	const,
+	len,
+	min_len,
+	max_len,
+	pattern,
+	prefix,
+	suffix,
+	contains,
+	in,
+	not_in,
+	ip,
+	ipv4,
+	ipv6,
+	uuid
 );
 
 macro_rules! bytes_violation {
-  ($name:ident, $num:literal, $typ:ident) => {
-    violation_data!(bytes, 15, $name, $num, $typ);
-  };
+	($name:ident, $num:literal, $typ:ident) => {
+		violation_data!(bytes, 15, $name, $num, $typ);
+	};
 }
 
 bytes_violation!(const, 1, Bytes);

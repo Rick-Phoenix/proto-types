@@ -44,9 +44,9 @@ pub mod timestamp;
 mod any;
 mod any_impls;
 #[cfg(any(
-  feature = "diesel-postgres",
-  feature = "diesel-sqlite",
-  feature = "diesel-mysql"
+	feature = "diesel-postgres",
+	feature = "diesel-sqlite",
+	feature = "diesel-mysql"
 ))]
 mod diesel_impls;
 
@@ -68,8 +68,8 @@ use alloc::{format, string::String, string::ToString, vec::Vec};
 use core::str::FromStr;
 use core::{convert::TryFrom, fmt, time};
 use core::{
-  fmt::{Debug, Display},
-  hash::Hash,
+	fmt::{Debug, Display},
+	hash::Hash,
 };
 
 use prost::{DecodeError, EncodeError, Message, Name};

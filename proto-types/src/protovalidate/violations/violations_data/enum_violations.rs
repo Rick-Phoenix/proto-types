@@ -3,9 +3,9 @@ use super::*;
 violations_enum!(with_required, Enum, const, defined_only, in, not_in);
 
 macro_rules! enum_violation {
-  ($name:ident, $num:literal, $typ:ident) => {
-    violation_data!(enum, 16, $name, $num, $typ);
-  };
+	($name:ident, $num:literal, $typ:ident) => {
+		violation_data!(enum, 16, $name, $num, $typ);
+	};
 }
 
 enum_violation!(const, 1, Int32);

@@ -1,47 +1,47 @@
 use super::*;
 
 violations_enum!(
-  with_required,
-  String,
-  const,
-  len,
-  min_len,
-  max_len,
-  len_bytes,
-  min_bytes,
-  max_bytes,
-  pattern,
-  prefix,
-  suffix,
-  contains,
-  not_contains,
-  in,
-  not_in,
-  email,
-  hostname,
-  ip,
-  ipv4,
-  ipv6,
-  uri,
-  uri_ref,
-  address,
-  uuid,
-  tuuid,
-  ip_with_prefixlen,
-  ipv4_with_prefixlen,
-  ipv6_with_prefixlen,
-  ip_prefix,
-  ipv4_prefix,
-  ipv6_prefix,
-  host_and_port,
-  ulid,
-  well_known_regex
+	with_required,
+	String,
+	const,
+	len,
+	min_len,
+	max_len,
+	len_bytes,
+	min_bytes,
+	max_bytes,
+	pattern,
+	prefix,
+	suffix,
+	contains,
+	not_contains,
+	in,
+	not_in,
+	email,
+	hostname,
+	ip,
+	ipv4,
+	ipv6,
+	uri,
+	uri_ref,
+	address,
+	uuid,
+	tuuid,
+	ip_with_prefixlen,
+	ipv4_with_prefixlen,
+	ipv6_with_prefixlen,
+	ip_prefix,
+	ipv4_prefix,
+	ipv6_prefix,
+	host_and_port,
+	ulid,
+	well_known_regex
 );
 
 macro_rules! string_violation {
-  ($name:ident, $num:literal, $typ:ident) => {
-    violation_data!(string, 14, $name, $num, $typ);
-  };
+	($name:ident, $num:literal, $typ:ident) => {
+		violation_data!(string, 14, $name, $num, $typ);
+	};
 }
 
 string_violation!(const, 1, String);

@@ -1,22 +1,22 @@
 use super::*;
 
 violations_enum!(
-  with_required,
-  Float,
-  const,
-  lt,
-  lte,
-  gt,
-  gte,
-  in,
-  not_in,
-  finite
+	with_required,
+	Float,
+	const,
+	lt,
+	lte,
+	gt,
+	gte,
+	in,
+	not_in,
+	finite
 );
 
 macro_rules! float_violation {
-  ($name:ident, $num:literal, $typ:ident) => {
-    violation_data!(float, 1, $name, $num, $typ);
-  };
+	($name:ident, $num:literal, $typ:ident) => {
+		violation_data!(float, 1, $name, $num, $typ);
+	};
 }
 
 float_violation!(const, 1, Float);
@@ -29,22 +29,22 @@ float_violation!(not_in, 7, Float);
 float_violation!(finite, 8, Bool);
 
 violations_enum!(
-  with_required,
-  Double,
-  const,
-  lt,
-  lte,
-  gt,
-  gte,
-  in,
-  not_in,
-  finite
+	with_required,
+	Double,
+	const,
+	lt,
+	lte,
+	gt,
+	gte,
+	in,
+	not_in,
+	finite
 );
 
 macro_rules! double_violation {
-  ($name:ident, $num:literal, $typ:ident) => {
-    violation_data!(double, 2, $name, $num, $typ);
-  };
+	($name:ident, $num:literal, $typ:ident) => {
+		violation_data!(double, 2, $name, $num, $typ);
+	};
 }
 
 double_violation!(const, 1, Double);

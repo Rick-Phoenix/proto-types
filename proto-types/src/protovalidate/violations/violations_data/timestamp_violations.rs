@@ -1,22 +1,22 @@
 use super::*;
 
 violations_enum!(
-  with_required,
-  Timestamp,
-  const,
-  lt,
-  lte,
-  lt_now,
-  gt,
-  gte,
-  gt_now,
-  within
+	with_required,
+	Timestamp,
+	const,
+	lt,
+	lte,
+	lt_now,
+	gt,
+	gte,
+	gt_now,
+	within
 );
 
 macro_rules! timestamp_violation {
-  ($name:ident, $num:literal, $typ:ident) => {
-    violation_data!(timestamp, 22, $name, $num, $typ);
-  };
+	($name:ident, $num:literal, $typ:ident) => {
+		violation_data!(timestamp, 22, $name, $num, $typ);
+	};
 }
 
 timestamp_violation!(const, 2, Message);

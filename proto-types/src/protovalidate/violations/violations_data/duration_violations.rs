@@ -3,9 +3,9 @@ use super::*;
 violations_enum!(with_required, Duration, const, lt, lte, gt, gte, in, not_in);
 
 macro_rules! duration_violation {
-  ($name:ident, $num:literal) => {
-    violation_data!(duration, 21, $name, $num, Message);
-  };
+	($name:ident, $num:literal) => {
+		violation_data!(duration, 21, $name, $num, Message);
+	};
 }
 
 duration_violation!(const, 2);
