@@ -319,6 +319,8 @@ impl Violation {
 }
 
 impl From<Violations> for Status {
+	#[inline(never)]
+	#[cold]
 	fn from(value: Violations) -> Self {
 		let message = if value.violations.len() == 1 && !value.violations[0].message().is_empty() {
 			value.violations[0].message()
@@ -338,6 +340,8 @@ impl From<Violations> for Status {
 }
 
 impl From<Violation> for Status {
+	#[inline(never)]
+	#[cold]
 	fn from(value: Violation) -> Self {
 		let message = if value.message().is_empty() {
 			"Validation failure"
