@@ -1,3 +1,9 @@
+## [0.2.1] - 2026-02-05
+
+### 🚀 Performance
+
+- [66e65ca](https://github.com/Rick-Phoenix/proto-types/commit/66e65ca6054492dd3364ea551c331bb1873bfe27) Inline(never) + cold on conversion from Violations into Status
+
 ## [0.2.0] - 2026-02-04
 
 ### 💥 BREAKING CHANGES
@@ -91,4 +97,5 @@
 
 - [57ca635](https://github.com/Rick-Phoenix/proto-types/commit/57ca6356d7807024eb505af1537c2089dc63e16e) Switched to hard tabs
 - [fbf2112](https://github.com/Rick-Phoenix/proto-types/commit/fbf21121df327ccf6a6dfbe4b8b11c3a62164b45) Added blame ignore file
+- [8135d6d](https://github.com/Rick-Phoenix/proto-types/commit/8135d6d21a7d3ab38b2bd721392c9f8e485579ec) release: Update changelog for 0.2.0
 
